@@ -1,9 +1,14 @@
 <Solution>
   <Folder Name="/Contracts/">
+    <Project Path="../../system/Contracts/Contracts.Backup/Contracts.Backup.csproj" Id="3cad12fb-a21c-41e2-9037-ead80ce0c30c" />
+    <Project Path="../../system/Contracts/Contracts.Config/Contracts.Config.csproj" Id="5bd2d873-300c-4013-94db-b26aad8ea424" />
+    <Project Path="../../system/Contracts/Contracts.Jdk/Contracts.Jdk.csproj" Id="6c8e5f15-17cb-43c0-96bb-fbecb7d6bfd1" />
     <Project Path="../../system/Contracts/Contracts.Lifecycle/Contracts.Lifecycle.csproj" />
+    <Project Path="../../system/Contracts/Contracts.Notification/Contracts.Notification.csproj" Id="bef2b89f-887a-4b5c-82fe-2848d32dc54f" />
+    <Project Path="../../system/Contracts/Contracts.Update/Contracts.Update.csproj" Id="e87b41ca-5ad3-43a7-8773-e5c1d0f2ed0a" />
   </Folder>
   <Folder Name="/Solution Items/">
-    <File Path="../../Directory.Build.targets" />
+    <File Path="../../Directory.Build.props" />
     <File Path="../../Directory.Packages.props" />
     <File Path="../../NuGet.config" />
   </Folder>
