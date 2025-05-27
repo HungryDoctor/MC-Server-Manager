@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Contracts.Backup
 {
-    public interface IBackup
+    public interface IBackupManager
     {
         Task<BackupId> RunNowAsync(ServerInstanceId serverInstanceId, BackupRuleId backupRuleId, CancellationToken ct = default);
         Task<BackupId> RunNowAsync(ServerInstanceId serverInstanceId, ManualBackup manualBackup, CancellationToken ct = default);
