@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Contracts.Jdk
 {
-    public interface IJdk
+    public interface IJdkManager
     {
         Task<JdkInstanceId> InstallAsync(string vendor, string version, CancellationToken ct = default);
         Task<JdkInstanceId> ImportAsync(string absolutePath, CancellationToken ct = default);
