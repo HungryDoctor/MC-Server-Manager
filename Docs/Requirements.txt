@@ -1,0 +1,138 @@
+Some terms:
+	Gracefully turn off server - show turn off message(s), /save-off, /save-all, /stop
+	Hot backup - /save-off, /save-all, try to zip, /save-on, /save-all
+	Cold backup - Gracefully turn off server, zip, turn on
+
+
+General requirements:
+	Support Windows 10/11/Server, Linux Debian 12
+	No docker or additional services/crons
+	Support Vanilla, Forge, Fabric	
+	Use dotnet8 or 9	
+	DB, if needed should be local (without additional services)
+	Backup format is e.g. {ServerName}_{yyyy-MM-dd-HHmmss}_backup{nn}
+	Use 7zip with LZMA2
+		For Compression ratio lets leave just 4 values
+	Have 1 user (for now)
+
+Application requirements:
+	All configuration must be persistent after restart (maybe a `local` db, maybe just a JSON)
+	All minecraft server instances state should be persistent (if server is running, stopped, etc)
+
+	Global settings
+		Setup default values for MC server instance:
+			Log-tail default KB
+			Turn off message(s) (can be empty)
+		Default Backup folder (absolute)
+		Default Root Server folder (absolute)		
+		Default JDK Root folder (absolute)
+		Crash loop detection
+			x Crashes in Y time
+		
+		
+	Update system
+		Check for a compatible Modloader version update for Minecraft server instance
+			If update found show notification		
+		Check for installed JDK versions
+			If a new minor version upgrade is found, show notification
+			
+			
+	JDK Management
+		Ability to install JDK ({JDKs Root}/{vendor}/{version})	
+		Show installed JDKs	
+		Re-install JDK
+			If any Minecraft server instance is running, ask for full backup, gracefully turn off MC server, re-install JDK, start		
+		Delete JDK
+			Do not allow to delete, if any Minecraft server instance is running on this JDK		
+		Move to another directory
+			If a server instance is running, ask for full backup, gracefully turn off MC server, migrate to the new folder, start
+		Import an installed JDK
+		
+		Each JDK change should be somehow validated if the new JDK is working/real JDK
+			
+			
+	Minecraft server instance management
+		Install new instance		
+			Configure setup
+				Version (vanilla/forge/fabric)			
+				Server name (unique)			
+				Installation folder			
+				JDK (installed or get a new one. Notify if officially not supported for a minecraft version)			
+				Setup RCON
+					Password should be or auto-generated or entered by a user			
+				Setup port
+					Default port should be a default minecraft port, autoincrementing each instance
+					User can enter manually a port
+					Port should be checked if available	
+		
+		Configure/View instance
+			Change name (unique)
+			Change JDK (Notify if officially not supported for a minecraft version)
+			Update JDK (if update available. Notify if officially not supported for a minecraft version)
+			Setup backup folder		
+			Setup Turn off message(s)
+				Message
+				Time before turning off		
+			Log-tail default KB
+			Setup auto-restart (default true)
+			Setup Backup rule(s)
+				Name (default name is based on config)
+				Folder
+				Hot/cold
+				Daily/weekly
+				Backup time
+				Compression ratio
+				Full/Custom folders
+				Backup name postfix (optional)
+				Retention (optional)
+					OR backups count or age
+			JVM parameters		
+			Configure OPs, whitelist, banned players	
+			Configure server.properties.json		
+			Console
+				RCON or STDIN can be switched on fly
+				Can type commands
+			Show logs (maybe combine with console?)
+				Debug
+				Latest
+			Show ip:port		
+			Show notifications		
+			Restart instance		
+			Manual backup instance
+				Choose by a saved rule OR configure a new backup
+					Folder
+					Hot/cold
+					Compression ratio
+					Full/Custom folders
+					Backup name postfix (optional)
+				Backup does not trigger retention rule (if any)
+			Delete instance
+			Notify with `warn` if crashed once
+			Notify with `error` if in a crash loop
+			Show process Id
+			
+		Notifications
+			Have 'level'
+				Something like Info, Warn, Error
+			Occurrence time
+			Code
+			Additional value
+				** I think about a nullable an object here. Object may vary from the notification. E.g. we can have objects with server instance, PID and other stuff **
+			Reason
+			
+			
+
+Future ideas:
+	Add MQTT to notifications
+	Add public REST API and Swagger
+	Role base authentication
+	Custom background image for MC server instances
+	Set MC server process priority
+	Extended JVM parameters editor - quick access to some properties like set memory
+	Extended server.properties.json editor - quick access to some properties like
+	Support MOTD for server name
+	Support Livemaps per MC server instance
+	Monitor resources usage (system, total, per MC server instance)
+	Add Graphana
+	Wrap in Docker
+	Start, Stop, crash loop hooks (call scripts)
