@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Moq" />
     <PackageReference Include="Quartz" />
     <PackageReference Include="TUnit" />
   </ItemGroup>
