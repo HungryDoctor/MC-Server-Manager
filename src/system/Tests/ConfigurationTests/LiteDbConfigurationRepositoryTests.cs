@@ -38,7 +38,7 @@ namespace ConfigurationTests
 
 
         [Test]
-        public async Task GetAsync_Before_Save_Returns_Defaults()
+        public async Task GetAsync_Before_Save_Returns_Defaults_Async()
         {
             GlobalSettings firstRead = await m_liteDbConfigurationRepository.GetAsync();
 
@@ -56,7 +56,7 @@ namespace ConfigurationTests
         }
 
         [Test]
-        public async Task GetAsync_Returns_Most_Recent_Settings()
+        public async Task GetAsync_Returns_Most_Recent_Settings_Async()
         {
             GlobalSettings settings = GetTestSettings();
             GlobalSettings anotherSettings = GetAnotherTestSettings();
