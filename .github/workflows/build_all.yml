@@ -36,4 +36,4 @@ jobs:
       run: pwsh ./build_scripts/build_all.ps1
 
     - name: Run test
-      run: pwsh ./build_scripts/test_all.ps1 -NoBuild
+      run: pwsh ./build_scripts/run_tests.ps1 -NoBuild
