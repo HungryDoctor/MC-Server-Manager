@@ -1,4 +1,7 @@
-﻿namespace Contracts.Configuration
+﻿using System.Threading;
+using System.Threading.Tasks;
+
+namespace Contracts.Configuration
 {
     public interface IConfiguration
     {
