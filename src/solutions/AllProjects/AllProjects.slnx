@@ -7,12 +7,16 @@
     <Project Path="../../system/Contracts/Contracts.Notification/Contracts.Notification.csproj" Id="bef2b89f-887a-4b5c-82fe-2848d32dc54f" />
     <Project Path="../../system/Contracts/Contracts.Update/Contracts.Update.csproj" Id="e87b41ca-5ad3-43a7-8773-e5c1d0f2ed0a" />
   </Folder>
-  <Folder Name="/Services/" />
+  <Folder Name="/Services/">
+    <Project Path="../../system/Services/Services.Configuration/Services.Configuration.csproj" Id="c96539a9-f788-44e5-8916-f1bb5a1c0683" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path="../../Directory.Build.props" />
     <File Path="../../Directory.Packages.props" />
     <File Path="../../global.json" />
     <File Path="../../NuGet.config" />
   </Folder>
-  <Folder Name="/Tests/" />
+  <Folder Name="/Tests/">
+    <Project Path="../../system/Tests/ConfigurationTests/ConfigurationTests.csproj" Id="6a20a6cb-90e8-4d96-86f0-b3b9b073c757" />
+  </Folder>
 </Solution>

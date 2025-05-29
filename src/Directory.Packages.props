@@ -3,4 +3,8 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Quartz" Version="3.14.0" />
+    <PackageVersion Include="TUnit" Version="0.22.24" />
+  </ItemGroup>
 </Project>
