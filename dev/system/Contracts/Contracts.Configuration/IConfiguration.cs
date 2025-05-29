@@ -1,6 +1,6 @@
-﻿namespace Contracts.Config
+﻿namespace Contracts.Configuration
 {
-    public interface IConfig
+    public interface IConfiguration
     {
         Task<GlobalSettings> GetAsync(CancellationToken ct = default);
         Task SaveAsync(GlobalSettings settings, CancellationToken ct = default);
