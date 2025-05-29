@@ -19,5 +19,6 @@
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="../../system/Tests/ConfigurationTests/ConfigurationTests.csproj" Id="6a20a6cb-90e8-4d96-86f0-b3b9b073c757" />
+    <Project Path="../../system/Tests/LifecycleTests/LifecycleTests.csproj" Id="ea72fecf-6f84-4854-93f5-095277cda7f6" />
   </Folder>
 </Solution>
