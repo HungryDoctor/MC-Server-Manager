@@ -4,4 +4,12 @@
     <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="TUnit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Services\Services.Lifecycle\Services.Lifecycle.csproj" />
+  </ItemGroup>
+
 </Project>
