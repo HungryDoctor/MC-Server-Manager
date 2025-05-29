@@ -20,14 +20,14 @@ namespace Services.Configuration.Repository
 
         public Task<GlobalSettings> GetAsync(CancellationToken ct = default)
         {
-            GlobalSettings doc = m_db.GetCollection<GlobalSettings>(c_globalSettingsCollection).FindById(1);
+            GlobalSettings? doc = m_db.GetCollection<GlobalSettings>(c_globalSettingsCollection).FindById(1);
             return Task.FromResult(doc ?? GlobalSettingsDefaults.Instance);
         }
 
         public Task SaveAsync(GlobalSettings settings, CancellationToken ct = default)
         {
-            ILiteCollection<GlobalSettings> col = m_db.GetCollection<GlobalSettings>(c_globalSettingsCollection);
-            col.Upsert(1, settings);
+            m_db.GetCollection<GlobalSettings>(c_globalSettingsCollection)
+                .Upsert(1, settings);
             m_db.Checkpoint();
 
             return Task.CompletedTask;
