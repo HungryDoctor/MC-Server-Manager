@@ -1,7 +1,0 @@
-name: checkout
-description: Check out the repo
-
-runs:
-  using: "composite"
-  steps:
-    - uses: actions/checkout@v4.2.2

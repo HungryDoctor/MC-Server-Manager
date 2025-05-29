@@ -1,9 +1,0 @@
-name: setup-dotnet
-description: Install the dotnet SDK defined by /src/global.json 
-
-runs:
-  using: 'composite'
-  steps:
-    - uses: actions/setup-dotnet@v4.3.1
-      with:
-        global-json-file: src/global.json
