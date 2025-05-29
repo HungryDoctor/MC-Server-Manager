@@ -1,39 +1,33 @@
 ﻿using Contracts.Configuration;
 using LiteDB;
-using Moq;
 using Services.Configuration.Defaults;
 using Services.Configuration.Repository;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace ConfigurationTests
 {
     public class LiteDbConfigurationRepositoryTests
     {
-        private GlobalSettings? m_stored;
-
-        private Mock<ILiteDatabase> m_liteDatabaseMoq;
-        private Mock<ILiteCollection<GlobalSettings>> m_globalSettingsCollection;
+        private MemoryStream m_dbMemoryStream;
+        private LiteDatabase m_database;
         private LiteDbConfigurationRepository m_liteDbConfigurationRepository;
 
 
         [Before(HookType.Test)]
         public void InitializeTest()
         {
-            m_globalSettingsCollection = new Mock<ILiteCollection<GlobalSettings>>(MockBehavior.Strict);
-            m_globalSettingsCollection
-                .Setup(x => x.FindById(1))
-                .Returns(() => m_stored);
-            m_globalSettingsCollection
-                .Setup(c => c.Upsert(1, It.IsAny<GlobalSettings>()))
-                .Callback<BsonValue, GlobalSettings>((_, gs) => m_stored = gs)
-                .Returns(true);
+            m_dbMemoryStream = new MemoryStream();
+            m_database = new LiteDatabase(m_dbMemoryStream);
+            m_liteDbConfigurationRepository = new LiteDbConfigurationRepository(m_database);
+        }
 
-            m_liteDatabaseMoq = new Mock<ILiteDatabase>(MockBehavior.Strict);
-            m_liteDatabaseMoq.Setup(x => x.GetCollection<GlobalSettings>(It.IsAny<string>(), It.IsAny<BsonAutoId>())).Returns(m_globalSettingsCollection.Object);
-            m_liteDatabaseMoq.Setup(d => d.Checkpoint());
-
-            m_liteDbConfigurationRepository = new LiteDbConfigurationRepository(m_liteDatabaseMoq.Object);
+        [After(HookType.Test)]
+        public void CleanupTest()
+        {
+            m_database.Dispose();
+            m_dbMemoryStream.Dispose();
         }
 
 
