@@ -18,11 +18,12 @@ jobs:
 
     runs-on: ${{matrix.os}}
 
-    steps:
-    - uses: actions/checkout@v4.2.2
-    
+    steps:   
     - name: Setup .NET
       uses: ./.github/actions/setup-dotnet
+
+    - name: Chechout repo
+      uses: ./.github/actions/checkout
       
     - name: Run build_all
       run: pwsh ./build_scripts/build_all.ps1
