@@ -9,6 +9,7 @@
   </Folder>
   <Folder Name="/Services/">
     <Project Path="../../system/Services/Services.Configuration/Services.Configuration.csproj" Id="c96539a9-f788-44e5-8916-f1bb5a1c0683" />
+    <Project Path="../../system/Services/Services.Lifecycle/Services.Lifecycle.csproj" Id="ee199843-45c4-4903-a810-655729f86390" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="../../Directory.Build.props" />
