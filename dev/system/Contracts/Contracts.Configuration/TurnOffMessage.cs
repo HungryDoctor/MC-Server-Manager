@@ -1,4 +1,4 @@
-﻿namespace Contracts.Config
+﻿namespace Contracts.Configuration
 {
     public sealed record TurnOffMessage(
         TimeSpan BeforeStop,
