@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace Services.Configuration.Repository
 {
-    internal class ConfigurationRepository : IConfigurationRepository
+    internal class LiteDbConfigurationRepository : IConfigurationRepository
     {
         private const string c_globalSettingsCollection = "global_settings";
         private readonly ILiteDatabase m_db;
 
 
-        public ConfigurationRepository(ILiteDatabase db) => m_db = db;
+        public LiteDbConfigurationRepository(ILiteDatabase db) => m_db = db;
 
 
         public Task<GlobalSettings> GetAsync(CancellationToken ct = default)

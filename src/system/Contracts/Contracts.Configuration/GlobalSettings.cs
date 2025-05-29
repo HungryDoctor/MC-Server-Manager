@@ -11,6 +11,6 @@ namespace Contracts.Configuration
         IReadOnlyList<TurnOffMessage> TurnOffMessages,
         uint CrashLoopCount,
         TimeSpan CrashLoopWindow,
-        string? JdkScanCron,
-        string? ModLoaderScanCron);
+        string JdkScanCron,
+        string ModLoaderScanCron);
 }
