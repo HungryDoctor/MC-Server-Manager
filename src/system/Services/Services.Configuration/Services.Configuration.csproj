@@ -14,4 +14,8 @@
     </AssemblyAttribute>
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="LiteDB" />
+  </ItemGroup>
+
 </Project>

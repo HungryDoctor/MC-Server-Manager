@@ -7,9 +7,9 @@ namespace Contracts.Configuration
         string DefaultBackupRoot,
         string DefaultServersRoot,
         string DefaultJdksRoot,
-        int LogTailKBDefault,
+        uint LogTailKBDefault,
         IReadOnlyList<TurnOffMessage> TurnOffMessages,
-        int CrashLoopCount,
+        uint CrashLoopCount,
         TimeSpan CrashLoopWindow,
         string? JdkScanCron,
         string? ModLoaderScanCron);
