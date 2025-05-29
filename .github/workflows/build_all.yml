@@ -24,6 +24,16 @@ jobs:
       uses: actions/setup-dotnet@v4.3.1
       with:
         global-json-file: src/global.json
+        cache: true
+        cache-dependency-path: |
+          **/*.csproj
+          **/Directory.Packages.props
+          **/Directory.Build.props
+          **/Directory.Build.targets
+          **/NuGet.config
       
-    - name: Run build_all
+    - name: Run build
       run: pwsh ./build_scripts/build_all.ps1
+
+    - name: Run test
+      run: pwsh ./build_scripts/test_all.ps1 -NoBuild
