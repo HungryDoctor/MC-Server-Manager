@@ -11,6 +11,5 @@ namespace Contracts.Lifecycle
         Task<ServerState> RestartAsync(ServerInstanceId serverInstanceId, bool graceful, CancellationToken ct = default);
         IAsyncEnumerable<string> AttachConsoleAsync(ServerInstanceId serverInstanceId, CancellationToken ct = default);
         Task SendCommandAsync(ServerInstanceId serverInstanceId, string command, CancellationToken ct = default);
-
     }
 }
