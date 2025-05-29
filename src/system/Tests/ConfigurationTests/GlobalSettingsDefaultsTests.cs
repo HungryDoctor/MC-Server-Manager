@@ -26,37 +26,37 @@ namespace ConfigurationTests
         }
 
         [Test]
-        public async Task CrashLoopWindow_GreaterThan_30secAsync()
+        public async Task CrashLoopWindow_GreaterThan_30sec_Async()
         {
             await Assert.That(GlobalSettingsDefaults.CrashLoopWindow).IsGreaterThan(TimeSpan.FromSeconds(30));
         }
 
         [Test]
-        public async Task CrashLoopCount_GreaterThan_1Async()
+        public async Task CrashLoopCount_GreaterThan_1_Async()
         {
             await Assert.That(GlobalSettingsDefaults.CrashLoopCount).IsGreaterThan(1u);
         }
 
         [Test]
-        public async Task LogTailKBDefault_GreaterThan_512kbAsync()
+        public async Task LogTailKBDefault_GreaterThan_512kb_Async()
         {
             await Assert.That(GlobalSettingsDefaults.LogTailKBDefault).IsGreaterThan(512u);
         }
 
         [Test]
-        public Task DefaultBackupRoot_Contains_ValidSymbolsAsync()
+        public Task DefaultBackupRoot_Contains_ValidSymbols_Async()
         {
             return PathContainsValidSymbolsAsync(GlobalSettingsDefaults.DefaultBackupRoot);
         }
 
         [Test]
-        public Task DefaultJdksRoot_Contains_ValidSymbolsAsync()
+        public Task DefaultJdksRoot_Contains_ValidSymbols_Async()
         {
             return PathContainsValidSymbolsAsync(GlobalSettingsDefaults.DefaultJdksRoot);
         }
 
         [Test]
-        public Task DefaultServersRoot_Contains_ValidSymbolsAsync()
+        public Task DefaultServersRoot_Contains_ValidSymbols_Async()
         {
             return PathContainsValidSymbolsAsync(GlobalSettingsDefaults.DefaultServersRoot);
         }
