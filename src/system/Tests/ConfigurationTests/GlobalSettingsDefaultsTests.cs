@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ConfigurationTests
 {
-    public partial class GlobalSettingsDefaultsTests
+    public class GlobalSettingsDefaultsTests
     {
         private static readonly SearchValues<char> s_windowsForbiddenFodlerChars = SearchValues.Create('<', '>', ':', '"', '\\', '|', '?', '*');
         private static readonly SearchValues<char> s_shellForbiddenFolerChars = SearchValues.Create(';', '|', '&', '>', '<', '\'', '"');
