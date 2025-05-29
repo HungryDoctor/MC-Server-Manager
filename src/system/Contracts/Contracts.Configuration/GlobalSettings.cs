@@ -1,4 +1,7 @@
-﻿namespace Contracts.Configuration
+﻿using System;
+using System.Collections.Generic;
+
+namespace Contracts.Configuration
 {
     public sealed record GlobalSettings(
         string DefaultBackupRoot,
