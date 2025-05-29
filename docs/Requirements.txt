@@ -136,3 +136,4 @@ Future ideas:
 	Add Graphana
 	Wrap in Docker
 	Start, Stop, crash loop hooks (call scripts)
+	Restore backup
