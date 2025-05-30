@@ -1,5 +1,6 @@
 ﻿using Raven.Client.Documents;
 using Raven.Embedded;
+using System;
 using System.Threading.Tasks;
 
 namespace TestsBase
@@ -13,6 +14,12 @@ namespace TestsBase
         public static void InitializeRavenDb()
         {
             EmbeddedServer.Instance.StartServer();
+        }
+
+        [After(HookType.TestSession)]
+        public static void StopRavenDb()
+        {
+            EmbeddedServer.Instance.Dispose();
         }
 
         [Before(HookType.Test)]
