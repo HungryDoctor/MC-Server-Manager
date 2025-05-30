@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LiteDB" />
+    <PackageReference Include="RavenDB.Embedded" />
   </ItemGroup>
 
   <ItemGroup>
