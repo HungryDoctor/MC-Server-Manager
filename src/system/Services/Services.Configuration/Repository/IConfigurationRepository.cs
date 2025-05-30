@@ -6,7 +6,7 @@ namespace Services.Configuration.Repository
 {
     public interface IConfigurationRepository
     {
-        Task<GlobalSettings> GetAsync(CancellationToken ct = default);
+        Task<GlobalSettings?> GetAsync(CancellationToken ct = default);
         Task SaveAsync(GlobalSettings settings, CancellationToken ct = default);
     }
 }
