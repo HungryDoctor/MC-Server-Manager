@@ -19,7 +19,14 @@ namespace TestsBase
         [After(HookType.TestSession)]
         public static void StopRavenDb()
         {
-            EmbeddedServer.Instance.Dispose();
+            try
+            {
+                EmbeddedServer.Instance.Dispose();
+            }
+            catch
+            {
+                // Disposing
+            }
         }
 
         [Before(HookType.Test)]
@@ -31,7 +38,14 @@ namespace TestsBase
         [After(HookType.Test)]
         public void CleanupDocumentStore()
         {
-            m_documentStore.Dispose();
+            try
+            {
+                m_documentStore.Dispose();
+            }
+            catch
+            {
+                // Disposing
+            }
         }
     }
 }
