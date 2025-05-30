@@ -42,7 +42,7 @@ namespace ConfigurationTests
         [Test]
         public async Task GetAsync_Delegates_To_Repository_Async()
         {
-            GlobalSettings result = await m_configurationService.GetAsync();
+            await m_configurationService.GetAsync();
             m_testRepository.Verify(x => x.GetAsync(It.IsAny<CancellationToken>()), Times.Exactly(1));
         }
 
