@@ -22,6 +22,6 @@ namespace Services.Configuration.Service
             GlobalSettings? result = await m_repository.GetAsync(ct).ConfigureAwait(false);
             return result ?? GlobalSettingsDefaults.Instance;
         }
-        public Task SaveAsync(GlobalSettings settings, CancellationToken ct = default) => m_repository.SaveAsync(settings, ct);
+        public Task SaveAsync(GlobalSettings settings, CancellationToken ct = default) => m_repository.CreateOrUpdateAsync(settings, ct);
     }
 }

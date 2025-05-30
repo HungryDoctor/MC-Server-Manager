@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="RavenDB.Embedded" />
+    <PackageReference Include="RavenDB.Client" />
   </ItemGroup>
 
   <ItemGroup>
