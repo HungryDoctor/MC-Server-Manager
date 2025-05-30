@@ -1,4 +1,5 @@
 ﻿using Raven.Client.Documents;
+using Raven.Client.ServerWide.Operations;
 using Raven.Embedded;
 using System;
 using System.Threading.Tasks;
@@ -36,10 +37,11 @@ namespace TestsBase
         }
 
         [After(HookType.Test)]
-        public void CleanupDocumentStore()
+        public async Task CleanupDocumentStoreAsync()
         {
             try
             {
+                await m_documentStore.Maintenance.Server.SendAsync(new DeleteDatabasesOperation(m_documentStore.Database, true)).ConfigureAwait(false);
                 m_documentStore.Dispose();
             }
             catch
