@@ -33,7 +33,7 @@ namespace LifecycleTests
         }
 
         [Test]
-        public async Task GetAsync_Returns_WhatSaved_Async()
+        public async Task GetAsync_Returns_Saved_Async()
         {
             ServerState serverState = GetServerState();
             ServerState anotherServerState = GetAnotherServerState();
@@ -49,6 +49,14 @@ namespace LifecycleTests
         }
 
         [Test]
+        public async Task GetAsync_Returns_Null_When_NotFound_Async()
+        {
+            ServerState? missing = await m_ravenDbServerStateRepository.GetAsync(new ServerInstanceId(Guid.NewGuid()));
+
+            await Assert.That(missing).IsNull();
+        }
+
+        [Test]
         public async Task GetAsync_Returns_AllSavedStates_Async()
         {
             ServerState serverState = GetServerState();
@@ -59,9 +67,17 @@ namespace LifecycleTests
 
             IReadOnlySet<ServerState> allStates = await m_ravenDbServerStateRepository.GetAsync();
 
-            await Assert.That(allStates.Count).IsEqualTo(2);
-            await Assert.That(allStates.Contains(serverState)).IsTrue();
-            await Assert.That(allStates.Contains(anotherServerState)).IsTrue();
+            await Assert.That(allStates).HasCount(2);
+            await Assert.That(allStates).Contains(serverState);
+            await Assert.That(allStates).Contains(anotherServerState);
+        }
+
+        [Test]
+        public async Task GetAsync_Returns_EmptyCollection_When_NotSaved_Async()
+        {
+            IReadOnlySet<ServerState> collection = await m_ravenDbServerStateRepository.GetAsync();
+
+            await Assert.That(collection).HasCount(0);
         }
 
         [Test]
@@ -76,14 +92,6 @@ namespace LifecycleTests
             ServerState? roundTrip = await m_ravenDbServerStateRepository.GetAsync(serverState.ServerInstanceId);
 
             await Assert.That(roundTrip).IsEqualTo(updated);
-        }
-
-        [Test]
-        public async Task GetAsync_Returns_NullWhenNotFound_Async()
-        {
-            ServerState? missing = await m_ravenDbServerStateRepository.GetAsync(new ServerInstanceId(Guid.NewGuid()));
-
-            await Assert.That(missing).IsNull();
         }
 
         [Test]

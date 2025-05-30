@@ -27,7 +27,7 @@ namespace ConfigurationTests
         }
 
         [Test]
-        public async Task GetAsync_Returns_WhatSaved_Async()
+        public async Task GetAsync_Returns_Saved_Async()
         {
             GlobalSettings settings = GetTestSettings();
             await m_ravenDbConfigurationRepository.CreateOrUpdateAsync(settings);
