@@ -15,12 +15,6 @@ namespace TestsBase
             EmbeddedServer.Instance.StartServer();
         }
 
-        [After(HookType.TestSession)]
-        public static void StopRavenDb()
-        {
-            EmbeddedServer.Instance.Dispose();
-        }
-
         [Before(HookType.Test)]
         public async Task InitializeDocumentStoreAsync()
         {
