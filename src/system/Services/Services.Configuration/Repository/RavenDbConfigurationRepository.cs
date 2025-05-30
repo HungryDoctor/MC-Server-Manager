@@ -8,7 +8,7 @@ namespace Services.Configuration.Repository
 {
     public class RavenDbConfigurationRepository : IConfigurationRepository
     {
-        private const string c_globalSettingsCollection = "global_settings";
+        private const string c_globalSettingsId = "global_settings";
         private readonly IDocumentStore m_documentStore;
 
 
@@ -22,16 +22,16 @@ namespace Services.Configuration.Repository
         {
             using (IAsyncDocumentSession session = m_documentStore.OpenAsyncSession())
             {
-                GlobalSettings? settings = await session.LoadAsync<GlobalSettings>(c_globalSettingsCollection, ct).ConfigureAwait(false);
+                GlobalSettings? settings = await session.LoadAsync<GlobalSettings>(c_globalSettingsId, ct).ConfigureAwait(false);
                 return settings;
             }
         }
 
-        public async Task SaveAsync(GlobalSettings settings, CancellationToken ct = default)
+        public async Task CreateOrUpdateAsync(GlobalSettings settings, CancellationToken ct = default)
         {
             using (IAsyncDocumentSession session = m_documentStore.OpenAsyncSession())
             {
-                await session.StoreAsync(settings, c_globalSettingsCollection, ct).ConfigureAwait(false);
+                await session.StoreAsync(settings, c_globalSettingsId, ct).ConfigureAwait(false);
                 await session.SaveChangesAsync(ct).ConfigureAwait(false);
             }
         }

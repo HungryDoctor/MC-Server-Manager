@@ -9,6 +9,7 @@
   </Folder>
   <Folder Name="/Services/">
     <Project Path="../../system/Services/Services.Configuration/Services.Configuration.csproj" Id="c96539a9-f788-44e5-8916-f1bb5a1c0683" />
+    <Project Path="../../system/Services/Services.Lifecycle/Services.Lifecycle.csproj" Id="7aac00e0-8daf-4288-977f-f24cf8eb3e64" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="../../Directory.Build.props" />
@@ -18,6 +19,7 @@
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="../../system/Tests/ConfigurationTests/ConfigurationTests.csproj" Id="6a20a6cb-90e8-4d96-86f0-b3b9b073c757" />
+    <Project Path="../../system/Tests/LifecycleTests/LifecycleTests.csproj" Id="72a09c58-33ca-4d71-8181-083cea4efd44" />
   </Folder>
   <Folder Name="/Tests/Infrastructure/">
     <Project Path="../../system/Tests/Infrastructure/TestsBase/TestsBase.csproj" Id="76c49239-2180-49ea-afb7-88b3070daa95" />

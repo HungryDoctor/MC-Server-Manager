@@ -27,10 +27,10 @@ namespace ConfigurationTests
         }
 
         [Test]
-        public async Task GetAsync_Returns_WhatSaved_Async()
+        public async Task GetAsync_Returns_Saved_Async()
         {
             GlobalSettings settings = GetTestSettings();
-            await m_ravenDbConfigurationRepository.SaveAsync(settings);
+            await m_ravenDbConfigurationRepository.CreateOrUpdateAsync(settings);
             GlobalSettings? roundTrip = await m_ravenDbConfigurationRepository.GetAsync();
 
             await Assert.That(roundTrip).IsEqualTo(settings);
@@ -42,8 +42,8 @@ namespace ConfigurationTests
             GlobalSettings settings = GetTestSettings();
             GlobalSettings anotherSettings = GetAnotherTestSettings();
 
-            await m_ravenDbConfigurationRepository.SaveAsync(settings);
-            await m_ravenDbConfigurationRepository.SaveAsync(anotherSettings);
+            await m_ravenDbConfigurationRepository.CreateOrUpdateAsync(settings);
+            await m_ravenDbConfigurationRepository.CreateOrUpdateAsync(anotherSettings);
             GlobalSettings? roundTrip = await m_ravenDbConfigurationRepository.GetAsync();
 
             await Assert.That(roundTrip).IsEqualTo(anotherSettings);

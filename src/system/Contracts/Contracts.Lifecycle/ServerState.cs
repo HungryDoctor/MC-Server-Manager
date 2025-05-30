@@ -6,7 +6,7 @@ namespace Contracts.Lifecycle
         ServerInstanceId ServerInstanceId,
         ServerStatus Status,
         int? Pid,
-        DateTimeOffset? StartedUtc,
-        DateTimeOffset? StoppedUtc,
+        DateTime? StartedUtc,
+        DateTime? StoppedUtc,
         int CrashCountLastWindow);
 }
