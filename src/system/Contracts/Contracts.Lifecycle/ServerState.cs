@@ -3,7 +3,7 @@
 namespace Contracts.Lifecycle
 {
     public sealed record ServerState(
-        ServerInstanceId Id,
+        ServerInstanceId ServerInstanceId,
         ServerStatus Status,
         int? Pid,
         DateTimeOffset? StartedUtc,
