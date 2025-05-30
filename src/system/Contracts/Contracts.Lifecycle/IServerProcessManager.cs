@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Contracts.Lifecycle
 {
-    public interface IServerProcess
+    public interface IServerProcessManager
     {
         Task<ServerState> StartAsync(ServerInstanceId serverInstanceId, CancellationToken ct = default);
         Task<ServerState> StopAsync(ServerInstanceId serverInstanceId, bool graceful, CancellationToken ct = default);

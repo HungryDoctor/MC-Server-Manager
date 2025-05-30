@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Services.Configuration.Service
 {
-    public sealed class ConfigurationService : IConfiguration
+    public sealed class ConfigurationService : IConfigurationManager
     {
         private readonly IConfigurationRepository m_repository;
 
