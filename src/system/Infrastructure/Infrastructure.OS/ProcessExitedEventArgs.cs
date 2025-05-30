@@ -1,4 +1,4 @@
 ﻿namespace Infrastructure.OS
 {
-    public record ProcessExitedEventArgs(int exitCode);
+    public record ProcessExitedEventArgs(int ExitCode);
 }
