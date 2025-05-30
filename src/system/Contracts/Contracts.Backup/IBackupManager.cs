@@ -12,6 +12,6 @@ namespace Contracts.Backup
         Task PruneAsync(ServerInstanceId serverInstanceId, CancellationToken ct = default);
         Task<IReadOnlyList<BackupRule>> GetRulesAsync(ServerInstanceId serverInstanceId, CancellationToken ct = default);
         Task<BackupRuleId> AddRuleAsync(ServerInstanceId serverInstanceId, BackupRule backupRule, CancellationToken ct = default);
-        Task DeleteRuleAsync(ServerInstanceId serverInstanceId, BackupRuleId id, CancellationToken ct = default);
+        Task DeleteRuleAsync(ServerInstanceId serverInstanceId, BackupRuleId backupRuleId, CancellationToken ct = default);
     }
 }
