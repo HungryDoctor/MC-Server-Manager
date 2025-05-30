@@ -33,14 +33,21 @@ namespace ConfigurationTests
 
 
         [Test]
-        public async Task GetAsync_Delegates_To_Repository_Async()
+        public async Task GetAsync_ReturnsDefault_If_NothingSaved_Async()
         {
             GlobalSettings result = await m_configurationService.GetAsync();
-            await Assert.That(GlobalSettingsDefaults.Instance).IsEqualTo(result);
+            await Assert.That(result).IsEqualTo(GlobalSettingsDefaults.Instance);
         }
 
         [Test]
-        public async Task SaveAsync_Delegates_To_Repository_Repository_Async()
+        public async Task GetAsync_Delegates_To_Repository_Async()
+        {
+            GlobalSettings result = await m_configurationService.GetAsync();
+            m_testRepository.Verify(x => x.GetAsync(It.IsAny<CancellationToken>()), Times.Exactly(1));
+        }
+
+        [Test]
+        public async Task SaveAsync_Delegates_To_Repository_Async()
         {
             GlobalSettings changedSettings = GlobalSettingsDefaults.Instance with
             {
@@ -48,7 +55,7 @@ namespace ConfigurationTests
             };
 
             await m_configurationService.SaveAsync(changedSettings);
-            await Assert.That(m_stored).IsEqualTo(changedSettings);
+            await Assert.That(changedSettings).IsEqualTo(m_stored);
             m_testRepository.Verify(x => x.SaveAsync(changedSettings, It.IsAny<CancellationToken>()), Times.Exactly(1));
         }
     }
