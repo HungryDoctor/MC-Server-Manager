@@ -32,7 +32,7 @@ namespace ConfigurationTests
 
 
         [Test]
-        public async Task GetAsync_Before_Save_Returns_Defaults_Async()
+        public async Task GetAsync_BeforeSave_Returns_Defaults_Async()
         {
             GlobalSettings firstRead = await m_liteDbConfigurationRepository.GetAsync();
 
@@ -40,23 +40,23 @@ namespace ConfigurationTests
         }
 
         [Test]
-        public async Task LiteDbConfigurationRepository_GetWhatSaved_Async()
+        public async Task GetAsync_Returns_Saved_Async()
         {
             GlobalSettings settings = GetTestSettings();
-            await m_liteDbConfigurationRepository.SaveAsync(settings);
+            await m_liteDbConfigurationRepository.UpdateAsync(settings);
             GlobalSettings roundTrip = await m_liteDbConfigurationRepository.GetAsync();
 
             await Assert.That(roundTrip).IsEqualTo(settings);
         }
 
         [Test]
-        public async Task GetAsync_Returns_Most_Recent_Settings_Async()
+        public async Task GetAsync_Returns_MostRecentSettings_Async()
         {
             GlobalSettings settings = GetTestSettings();
             GlobalSettings anotherSettings = GetAnotherTestSettings();
 
-            await m_liteDbConfigurationRepository.SaveAsync(settings);
-            await m_liteDbConfigurationRepository.SaveAsync(anotherSettings);
+            await m_liteDbConfigurationRepository.UpdateAsync(settings);
+            await m_liteDbConfigurationRepository.UpdateAsync(anotherSettings);
             GlobalSettings roundTrip = await m_liteDbConfigurationRepository.GetAsync();
 
             await Assert.That(roundTrip).IsEqualTo(anotherSettings);

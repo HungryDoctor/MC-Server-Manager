@@ -17,6 +17,6 @@ namespace Services.Configuration.Service
 
 
         public Task<GlobalSettings> GetAsync(CancellationToken ct = default) => m_repository.GetAsync(ct);
-        public Task SaveAsync(GlobalSettings settings, CancellationToken ct = default) => m_repository.SaveAsync(settings, ct);
+        public Task SaveAsync(GlobalSettings settings, CancellationToken ct = default) => m_repository.UpdateAsync(settings, ct);
     }
 }

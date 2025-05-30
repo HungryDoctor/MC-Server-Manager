@@ -24,7 +24,7 @@ namespace Services.Configuration.Repository
             return Task.FromResult(doc ?? GlobalSettingsDefaults.Instance);
         }
 
-        public Task SaveAsync(GlobalSettings settings, CancellationToken ct = default)
+        public Task UpdateAsync(GlobalSettings settings, CancellationToken ct = default)
         {
             m_db.GetCollection<GlobalSettings>(c_globalSettingsCollection)
                 .Upsert(1, settings);

@@ -7,9 +7,9 @@ namespace Services.Lifecycle.Repository
 {
     public interface IServerProcessRepository
     {
-        Task<ServerState> LoadAsync(ServerInstanceId serverInstanceId, CancellationToken ct = default);
-        Task<IReadOnlySet<ServerState>> ListAsync(CancellationToken ct = default);
         Task<ServerInstanceId> CreateAsync(ServerState serverState, CancellationToken ct = default);
-        Task SaveAsync(ServerState serverState, CancellationToken ct = default);
+        Task<ServerState?> GetAsync(ServerInstanceId serverInstanceId, CancellationToken ct = default);
+        Task<IReadOnlySet<ServerState>> GetAsync(CancellationToken ct = default);
+        Task UpdateAsync(ServerState serverState, CancellationToken ct = default);
     }
 }

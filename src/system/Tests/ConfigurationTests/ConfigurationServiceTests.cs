@@ -21,7 +21,7 @@ namespace ConfigurationTests
         {
             m_testRepository = new Mock<IConfigurationRepository>(MockBehavior.Strict);
             m_testRepository
-                .Setup(x => x.SaveAsync(It.IsAny<GlobalSettings>(), It.IsAny<CancellationToken>()))
+                .Setup(x => x.UpdateAsync(It.IsAny<GlobalSettings>(), It.IsAny<CancellationToken>()))
                 .Callback<GlobalSettings, CancellationToken>((settings, _) => m_stored = settings)
                 .Returns(Task.CompletedTask);
             m_testRepository
@@ -33,14 +33,14 @@ namespace ConfigurationTests
 
 
         [Test]
-        public async Task GetAsync_Delegates_To_Repository_Async()
+        public async Task GetAsync_Delegates_ToRepository_Async()
         {
             GlobalSettings result = await m_configurationService.GetAsync();
             await Assert.That(GlobalSettingsDefaults.Instance).IsEqualTo(result);
         }
 
         [Test]
-        public async Task SaveAsync_Delegates_To_Repository_Repository_Async()
+        public async Task SaveAsync_Delegates_ToRepository_Async()
         {
             GlobalSettings changedSettings = GlobalSettingsDefaults.Instance with
             {
@@ -49,7 +49,7 @@ namespace ConfigurationTests
 
             await m_configurationService.SaveAsync(changedSettings);
             await Assert.That(m_stored).IsEqualTo(changedSettings);
-            m_testRepository.Verify(x => x.SaveAsync(changedSettings, It.IsAny<CancellationToken>()), Times.Exactly(1));
+            m_testRepository.Verify(x => x.UpdateAsync(changedSettings, It.IsAny<CancellationToken>()), Times.Exactly(1));
         }
     }
 }

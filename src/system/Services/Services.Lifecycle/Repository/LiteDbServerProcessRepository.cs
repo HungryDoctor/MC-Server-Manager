@@ -25,19 +25,19 @@ namespace Services.Lifecycle.Repository
             return Task.FromResult(serverState.ServerInstanceId);
         }
 
-        public Task<IReadOnlySet<ServerState>> ListAsync(CancellationToken ct = default)
+        public Task<IReadOnlySet<ServerState>> GetAsync(CancellationToken ct = default)
         {
             IReadOnlySet<ServerState> result = m_db.GetCollection<ServerState>(c_serverProcess).FindAll().ToHashSet();
             return Task.FromResult(result);
         }
 
-        public Task<ServerState> LoadAsync(ServerInstanceId serverInstanceId, CancellationToken ct = default)
+        public Task<ServerState?> GetAsync(ServerInstanceId serverInstanceId, CancellationToken ct = default)
         {
-            ServerState result = m_db.GetCollection<ServerState>(c_serverProcess).FindById(serverInstanceId.GetBsonKey());
+            ServerState? result = m_db.GetCollection<ServerState>(c_serverProcess).FindById(serverInstanceId.GetBsonKey());
             return Task.FromResult(result);
         }
 
-        public Task SaveAsync(ServerState serverState, CancellationToken ct = default)
+        public Task UpdateAsync(ServerState serverState, CancellationToken ct = default)
         {
             m_db.GetCollection<ServerState>(c_serverProcess).Upsert(serverState.GetBsonKey(), serverState);
             return Task.CompletedTask;
