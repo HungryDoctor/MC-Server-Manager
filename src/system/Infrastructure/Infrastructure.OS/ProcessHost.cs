@@ -19,6 +19,7 @@ namespace Infrastructure.OS
         private readonly string? m_args;
 
         private Process? m_process;
+        private TaskCompletionSource m_taskExitAwaiter = new TaskCompletionSource();
         private bool m_disposed = false;
 
         public ProcessStatus Status { get; private set; } = ProcessStatus.NotStarted;
@@ -58,11 +59,15 @@ namespace Infrastructure.OS
 
             if (!m_process.HasExited)
             {
-                await StopAsync();
+                try
+                {
+                    await StopAsync().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    m_logger.LogError(ex, "Error occurred on stopping process {PID}", m_process?.Id);
+                }
             }
-
-            m_process.Exited -= OnProcessExited;
-            m_process.Dispose();
 
             m_disposed = true;
         }
@@ -102,6 +107,7 @@ namespace Infrastructure.OS
 
             process.Exited += OnProcessExited;
             m_process = process;
+            m_taskExitAwaiter = new TaskCompletionSource();
 
             if (!process.Start())
             {
@@ -161,7 +167,12 @@ namespace Infrastructure.OS
             Status = ProcessStatus.Running;
         }
 
-        public async Task StopAsync(CancellationToken ct = default)
+        public Task StopAsync(CancellationToken ct = default)
+        {
+            return StopAsync(TimeSpan.FromSeconds(10), ct);
+        }
+
+        public async Task StopAsync(TimeSpan waitForExitEvents, CancellationToken ct = default)
         {
             ObjectDisposedException.ThrowIf(m_disposed, this);
 
@@ -183,19 +194,34 @@ namespace Infrastructure.OS
                 }
             }
 
-            if (Status == ProcessStatus.Running && m_process != null)
+            if (Status != ProcessStatus.Running || m_process == null)
             {
-                m_process.Kill(true);
-                m_process.Dispose();
+                m_logger.LogWarning(
+                    "Can't stop the process '{ProcessPath}' with args {Args} inside working directory '{WorkingDirectory}' with pid {PID}",
+                    m_executable.FullName,
+                    m_args,
+                    m_workingDir.FullName,
+                    m_process?.Id);
+
                 return;
             }
 
-            m_logger.LogWarning(
-                "Can't stop the process '{ProcessPath}' with args {Args} inside working directory '{WorkingDirectory}' with pid {PID}",
-                m_executable.FullName,
-                m_args,
-                m_workingDir.FullName,
-                m_process?.Id);
+            try
+            {
+                m_process.Kill(true);
+
+                if (m_taskExitAwaiter != null)
+                {
+                    await m_taskExitAwaiter.Task.WaitAsync(waitForExitEvents, ct).ConfigureAwait(false);
+                }
+            }
+            finally
+            {
+                m_process.Exited -= OnProcessExited;
+                m_process.Dispose();
+
+                Status = ProcessStatus.Exited;
+            }
         }
 
         public async Task SendCommandAsync(string command)
@@ -237,6 +263,8 @@ namespace Infrastructure.OS
             }
 
             Exited?.Invoke(this, new ProcessExitedEventArgs(m_process.ExitCode));
+
+            m_taskExitAwaiter?.SetResult();
         }
 
         private void ValidatePaths()

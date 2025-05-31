@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.IO;
-using System.Security.AccessControl;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -154,6 +153,35 @@ namespace Infrastructure.OSTests
 
             await Assert.That(host.Status).IsEqualTo(ProcessStatus.Exited);
             await Assert.That(processExitedEventArgs.ExitCode).IsNotEqualTo(0);
+
+
+            void Host_Exited(object? sender, ProcessExitedEventArgs e)
+            {
+                autoResetEvent.Set();
+                processExitedEventArgs = e;
+            }
+        }
+
+        [Test]
+        public async Task Status_Running_After_StartStop_Async()
+        {
+            AutoResetEvent autoResetEvent = new AutoResetEvent(false);
+            ProcessExitedEventArgs processExitedEventArgs = null!;
+
+            ProcessHost host = CreateProcessHost();
+            host.Exited += Host_Exited;
+
+            host.Start();
+            await Assert.That(host.Status).IsEqualTo(ProcessStatus.Running);
+
+            await host.StopAsync().ConfigureAwait(false);
+            autoResetEvent.WaitOne(5000);
+
+            await Assert.That(host.Status).IsEqualTo(ProcessStatus.Exited);
+            await Assert.That(processExitedEventArgs.ExitCode).IsNotEqualTo(0);
+
+            host.Start();
+            await Assert.That(host.Status).IsEqualTo(ProcessStatus.Running);
 
 
             void Host_Exited(object? sender, ProcessExitedEventArgs e)
