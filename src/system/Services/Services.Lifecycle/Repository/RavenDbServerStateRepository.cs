@@ -83,7 +83,7 @@ namespace Services.Lifecycle.Repository
 
     file static class ServerStateDbHelper
     {
-        private const string c_serverProcess = "server_process";
+        private const string c_serverProcess = "server_state";
 
         public static string GetCollectionKey() => c_serverProcess;
         public static string GetDbKey(this ServerState serverState) => $"{c_serverProcess}/{serverState.ServerInstanceId.Value.ToString()}";

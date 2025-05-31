@@ -8,7 +8,7 @@ namespace TestsBase
 {
     public abstract class RavenDbTestBase
     {
-        protected IDocumentStore m_documentStore;
+        protected IDocumentStore m_documentStore = null!;
 
 
         [Before(HookType.TestSession)]

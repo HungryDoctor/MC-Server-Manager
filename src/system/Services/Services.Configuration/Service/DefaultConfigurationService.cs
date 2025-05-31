@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace Services.Configuration.Service
 {
-    public sealed class ConfigurationService : IConfigurationManager
+    public sealed class DefaultConfigurationService : IConfigurationManager
     {
         private readonly IConfigurationRepository m_repository;
 
 
-        public ConfigurationService(IConfigurationRepository repo)
+        public DefaultConfigurationService(IConfigurationRepository repo)
         {
             m_repository = repo;
         }
