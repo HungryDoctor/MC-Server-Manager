@@ -7,6 +7,10 @@
     <Project Path="../../system/Contracts/Contracts.Notification/Contracts.Notification.csproj" Id="bef2b89f-887a-4b5c-82fe-2848d32dc54f" />
     <Project Path="../../system/Contracts/Contracts.Update/Contracts.Update.csproj" Id="e87b41ca-5ad3-43a7-8773-e5c1d0f2ed0a" />
   </Folder>
+  <Folder Name="/Infrastructure/">
+    <Project Path="../../system/Infrastructure/Infrastructure.Extensions/Infrastructure.Extensions.csproj" Id="39b689e3-01fe-43e2-9e30-a986c7b27faf" />
+    <Project Path="../../system/Infrastructure/Infrastructure.OS/Infrastructure.OS.csproj" Id="8dc8eab8-561a-450e-81bc-f33df47c1abe" />
+  </Folder>
   <Folder Name="/Services/">
     <Project Path="../../system/Services/Services.Configuration/Services.Configuration.csproj" Id="c96539a9-f788-44e5-8916-f1bb5a1c0683" />
     <Project Path="../../system/Services/Services.Lifecycle/Services.Lifecycle.csproj" Id="7aac00e0-8daf-4288-977f-f24cf8eb3e64" />
@@ -19,9 +23,14 @@
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="../../system/Tests/ConfigurationTests/ConfigurationTests.csproj" Id="6a20a6cb-90e8-4d96-86f0-b3b9b073c757" />
+    <Project Path="../../system/Tests/Infrastructure.ExtensionsTests/Infrastructure.ExtensionsTests.csproj" Id="84d96046-9ecc-4d96-bd8c-a4c9238fcbed" />
+    <Project Path="../../system/Tests/Infrastructure.OSTests/Infrastructure.OSTests.csproj" Id="d21a6536-affe-4800-8983-f61eed50eb27" />
     <Project Path="../../system/Tests/LifecycleTests/LifecycleTests.csproj" Id="72a09c58-33ca-4d71-8181-083cea4efd44" />
   </Folder>
   <Folder Name="/Tests/Infrastructure/">
     <Project Path="../../system/Tests/Infrastructure/TestsBase/TestsBase.csproj" Id="76c49239-2180-49ea-afb7-88b3070daa95" />
+  </Folder>
+  <Folder Name="/Tests/TestUtils/">
+    <Project Path="../../system/Tests/TestUtils/DummyConsoleApp/DummyConsoleApp.csproj" Id="2bb19d02-2ced-4bb7-8f31-30e21baa2eee" />
   </Folder>
 </Solution>
