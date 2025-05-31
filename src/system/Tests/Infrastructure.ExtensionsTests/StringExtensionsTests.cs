@@ -62,6 +62,5 @@ namespace Infrastructure.ExtensionsTests
             string result = input.ReverseString();
             await Assert.That(result).IsEqualTo(expected);
         }
-
     }
 }
