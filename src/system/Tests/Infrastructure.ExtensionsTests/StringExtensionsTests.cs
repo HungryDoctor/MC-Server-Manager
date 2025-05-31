@@ -8,8 +8,8 @@ namespace Infrastructure.ExtensionsTests
         [Test]
         public async Task ReverseString_NullInput_ReturnsNull_Async()
         {
-            string? input = null;
-            string? result = input.ReverseString();
+            const string? input = null;
+            string? result = input!.ReverseString();
             await Assert.That(result).IsNull();
         }
 
@@ -24,7 +24,7 @@ namespace Infrastructure.ExtensionsTests
         [Test]
         public async Task ReverseString_SingleCharacter_ReturnsSameCharacter_Async()
         {
-            string input = "A";
+            const string input = "A";
             string result = input.ReverseString();
             await Assert.That(result).IsEqualTo("A");
         }
@@ -32,7 +32,7 @@ namespace Infrastructure.ExtensionsTests
         [Test]
         public async Task ReverseString_TwoCharacters_ReturnsSwappedCharacters_Async()
         {
-            string input = "ab";
+            const string input = "ab";
             string result = input.ReverseString();
             await Assert.That(result).IsEqualTo("ba");
         }
@@ -40,7 +40,7 @@ namespace Infrastructure.ExtensionsTests
         [Test]
         public async Task ReverseString_Palindrome_ReturnsSamePalindrome_Async()
         {
-            string input = "racecar";
+            const string input = "racecar";
             string result = input.ReverseString();
             await Assert.That(result).IsEqualTo("racecar");
         }
@@ -48,8 +48,8 @@ namespace Infrastructure.ExtensionsTests
         [Test]
         public async Task ReverseString_NormalString_ReturnsReversedString_Async()
         {
-            string input = "Hello, World!";
-            string expected = "!dlroW ,olleH";
+            const string input = "Hello, World!";
+            const string expected = "!dlroW ,olleH";
             string result = input.ReverseString();
             await Assert.That(result).IsEqualTo(expected);
         }
@@ -57,8 +57,8 @@ namespace Infrastructure.ExtensionsTests
         [Test]
         public async Task ReverseString_StringWithSpacesAndSymbols_ReturnsCorrectlyReversed_Async()
         {
-            string input = "  abc 123 !@# ";
-            string expected = " #@! 321 cba  ";
+            const string input = "  abc 123 !@# ";
+            const string expected = " #@! 321 cba  ";
             string result = input.ReverseString();
             await Assert.That(result).IsEqualTo(expected);
         }

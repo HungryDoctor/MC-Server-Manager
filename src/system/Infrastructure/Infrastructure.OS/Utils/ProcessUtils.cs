@@ -1,4 +1,5 @@
 ﻿using Infrastructure.OS.Utils.Linux;
+using Infrastructure.OS.Utils.Win32;
 using System;
 using System.Diagnostics;
 using System.Threading;

@@ -9,7 +9,7 @@ namespace LifecycleTests
 {
     public class RavenDbServerStateRepositoryTests : RavenDbTestBase
     {
-        private RavenDbServerStateRepository m_ravenDbServerStateRepository;
+        private RavenDbServerStateRepository m_ravenDbServerStateRepository = null!;
 
 
         [Before(HookType.Test)]
