@@ -39,7 +39,7 @@ namespace Infrastructure.OS.Utils
                 }
                 catch (Exception linuxEx)
                 {
-                    throw new AggregateException(ex, linuxEx);
+                    throw new AggregateException(linuxEx, ex);
                 }
             }
 
