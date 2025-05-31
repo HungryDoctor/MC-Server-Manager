@@ -58,7 +58,7 @@ namespace Infrastructure.OSTests
         }
 
         [Test]
-        public async Task Status_Exited_After_Start_Async()
+        public async Task Status_Exited_After_Stop_Async()
         {
             AutoResetEvent autoResetEvent = new AutoResetEvent(false);
             ProcessExitedEventArgs processExitedEventArgs = null!;
@@ -94,7 +94,7 @@ namespace Infrastructure.OSTests
             {
                 ProcessHost host2 = CreateProcessHost();
                 host2.Exited += Host_Exited;
-                host2.ReattachAsync(pid);
+                await host2.ReattachAsync(pid).ConfigureAwait(false);
 
                 await Assert.That(host2.Status).IsEqualTo(ProcessStatus.Running);
 
