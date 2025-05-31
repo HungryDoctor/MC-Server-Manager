@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace ConfigurationTests
 {
-    public class ConfigurationServiceTests
+    public class DefaultConfigurationServiceTests
     {
         private GlobalSettings? m_stored;
 
         private Mock<IConfigurationRepository> m_testRepository;
-        private ConfigurationService m_configurationService;
+        private DefaultConfigurationService m_configurationService;
 
 
         [Before(HookType.Test)]
@@ -28,7 +28,7 @@ namespace ConfigurationTests
                 .Setup(x => x.GetAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(() => m_stored ?? GlobalSettingsDefaults.Instance);
 
-            m_configurationService = new ConfigurationService(m_testRepository.Object);
+            m_configurationService = new DefaultConfigurationService(m_testRepository.Object);
         }
 
 
