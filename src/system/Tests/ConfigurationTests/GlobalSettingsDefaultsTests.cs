@@ -34,13 +34,17 @@ namespace ConfigurationTests
         [Test]
         public async Task CrashLoopCount_GreaterThan_1_Async()
         {
+#pragma warning disable TUnitAssertions0005 // Assert.That(...) should not be used with a constant value
             await Assert.That(GlobalSettingsDefaults.CrashLoopCount).IsGreaterThan(1u);
+#pragma warning restore TUnitAssertions0005 // Assert.That(...) should not be used with a constant value
         }
 
         [Test]
         public async Task LogTailKBDefault_GreaterThan_512kb_Async()
         {
+#pragma warning disable TUnitAssertions0005 // Assert.That(...) should not be used with a constant value
             await Assert.That(GlobalSettingsDefaults.LogTailKBDefault).IsGreaterThan(512u);
+#pragma warning restore TUnitAssertions0005 // Assert.That(...) should not be used with a constant value
         }
 
         [Test]

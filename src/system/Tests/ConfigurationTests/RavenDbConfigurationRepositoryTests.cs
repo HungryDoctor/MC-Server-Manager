@@ -8,7 +8,7 @@ namespace ConfigurationTests
 {
     public class RavenDbConfigurationRepositoryTests : RavenDbTestBase
     {
-        private RavenDbConfigurationRepository m_ravenDbConfigurationRepository;
+        private RavenDbConfigurationRepository m_ravenDbConfigurationRepository = null!;
 
 
         [Before(HookType.Test)]

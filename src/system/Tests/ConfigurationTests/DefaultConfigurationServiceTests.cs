@@ -12,8 +12,8 @@ namespace ConfigurationTests
     {
         private GlobalSettings? m_stored;
 
-        private Mock<IConfigurationRepository> m_testRepository;
-        private DefaultConfigurationService m_configurationService;
+        private Mock<IConfigurationRepository> m_testRepository = null!;
+        private DefaultConfigurationService m_configurationService = null!;
 
 
         [Before(HookType.Test)]
