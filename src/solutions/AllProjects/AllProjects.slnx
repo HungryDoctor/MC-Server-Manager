@@ -21,11 +21,11 @@
     <File Path="../../global.json" />
     <File Path="../../NuGet.config" />
   </Folder>
-  <Folder Name="/Tests/">
-    <Project Path="../../system/Tests/ConfigurationTests/ConfigurationTests.csproj" Id="6a20a6cb-90e8-4d96-86f0-b3b9b073c757" />
-    <Project Path="../../system/Tests/Infrastructure.ExtensionsTests/Infrastructure.ExtensionsTests.csproj" Id="84d96046-9ecc-4d96-bd8c-a4c9238fcbed" />
-    <Project Path="../../system/Tests/Infrastructure.OSTests/Infrastructure.OSTests.csproj" Id="d21a6536-affe-4800-8983-f61eed50eb27" />
-    <Project Path="../../system/Tests/LifecycleTests/LifecycleTests.csproj" Id="72a09c58-33ca-4d71-8181-083cea4efd44" />
+  <Folder Name="/Tests/UnitTests/">
+    <Project Path="../../system/Tests/UnitTests/ConfigurationTests/ConfigurationTests.csproj" Id="6a20a6cb-90e8-4d96-86f0-b3b9b073c757" />
+    <Project Path="../../system/Tests/UnitTests/Infrastructure.ExtensionsTests/Infrastructure.ExtensionsTests.csproj" Id="84d96046-9ecc-4d96-bd8c-a4c9238fcbed" />
+    <Project Path="../../system/Tests/UnitTests/Infrastructure.OSTests/Infrastructure.OSTests.csproj" Id="d21a6536-affe-4800-8983-f61eed50eb27" />
+    <Project Path="../../system/Tests/UnitTests/LifecycleTests/LifecycleTests.csproj" Id="72a09c58-33ca-4d71-8181-083cea4efd44" />
   </Folder>
   <Folder Name="/Tests/Infrastructure/">
     <Project Path="../../system/Tests/Infrastructure/TestsBase/TestsBase.csproj" Id="76c49239-2180-49ea-afb7-88b3070daa95" />

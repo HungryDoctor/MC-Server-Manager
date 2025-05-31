@@ -6,13 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Moq" />
     <PackageReference Include="TUnit" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Services.Lifecycle\Services.Lifecycle.csproj" />
-    <ProjectReference Include="..\Infrastructure\TestsBase\TestsBase.csproj" />
+    <ProjectReference Include="..\..\..\Infrastructure\Infrastructure.Extensions\Infrastructure.Extensions.csproj" />
   </ItemGroup>
 
 </Project>
