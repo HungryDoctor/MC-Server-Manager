@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Infrastructure.OS.Utils;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -43,7 +44,11 @@ namespace Infrastructure.OS
 
         public async ValueTask DisposeAsync()
         {
-            m_disposed = true;
+            if (m_disposed)
+            {
+                return;
+            }
+
             GC.SuppressFinalize(this);
 
             if (m_process is null)
@@ -55,11 +60,15 @@ namespace Infrastructure.OS
             {
                 await StopAsync();
             }
+
+            m_process.Exited -= OnProcessExited;
             m_process.Dispose();
+
+            m_disposed = true;
         }
 
 
-        public void Start()
+        public int Start()
         {
             ObjectDisposedException.ThrowIf(m_disposed, this);
 
@@ -101,9 +110,10 @@ namespace Infrastructure.OS
             }
 
             Status = ProcessStatus.Running;
+            return process.Id;
         }
 
-        public void Reattach(int pid)
+        public async Task ReattachAsync(int pid, CancellationToken ct = default)
         {
             ObjectDisposedException.ThrowIf(m_disposed, this);
 
@@ -127,23 +137,28 @@ namespace Infrastructure.OS
                 throw new InvalidOperationException($"Process {pid} is not found");
             }
 
-            ProcessStartInfo processStartInfo = process.StartInfo;
-            if (processStartInfo.FileName != m_executable.FullName)
+            ProcessParameters processParameters = await ProcessUtils.GetGetProcessParametersAsync(pid, ct).ConfigureAwait(false);
+            if (processParameters.Executable != m_executable.FullName)
             {
-                throw new InvalidOperationException($"Process {pid} has different executable. Expected '{m_executable.FullName}' but having '{processStartInfo.FileName}'");
+                throw new InvalidOperationException($"Process {pid} has different executable. Expected '{m_executable.FullName}' but having '{process.Modules[0].FileName}'");
             }
 
-            if (processStartInfo.WorkingDirectory != m_workingDir.FullName)
+            if (processParameters.Arguments != (m_args ?? ""))
             {
-                throw new InvalidOperationException($"Process {pid} has different working directory. Expected '{m_workingDir.FullName}' but having '{processStartInfo.WorkingDirectory}'");
+                throw new InvalidOperationException($"Process {pid} has different executable. Expected '{m_args}' but having '{processParameters.Arguments}'");
             }
 
-            if (processStartInfo.Arguments != m_args)
+            if (m_process != null)
             {
-                throw new InvalidOperationException($"Process {pid} has different executable. Expected '{m_args}' but having '{processStartInfo.Arguments}'");
+                m_process.Exited -= OnProcessExited;
+                m_process.Dispose();
             }
 
+            process.EnableRaisingEvents = true;
             process.Exited += OnProcessExited;
+            m_process = process;
+
+            Status = ProcessStatus.Running;
         }
 
         public async Task StopAsync(CancellationToken ct = default)
@@ -171,6 +186,7 @@ namespace Infrastructure.OS
             if (Status == ProcessStatus.Running && m_process != null)
             {
                 m_process.Kill(true);
+                m_process.Dispose();
                 return;
             }
 
