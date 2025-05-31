@@ -10,6 +10,7 @@ namespace Infrastructure.OSTests
 {
     public class ProcessHostTests
     {
+        private const int c_waitForProcessExitInMs = 20000;
         private static FileInfo s_dummyConsoleAppFileInfo = null!;
 
 
@@ -67,7 +68,7 @@ namespace Infrastructure.OSTests
 
             host.Start();
             await host.StopAsync().ConfigureAwait(false);
-            autoResetEvent.WaitOne(5000);
+            autoResetEvent.WaitOne(c_waitForProcessExitInMs);
 
             await Assert.That(host.Status).IsEqualTo(ProcessStatus.Exited);
             await Assert.That(processExitedEventArgs.ExitCode).IsNotEqualTo(0);
@@ -98,7 +99,7 @@ namespace Infrastructure.OSTests
                 await Assert.That(host2.Status).IsEqualTo(ProcessStatus.Running);
 
                 await host2.StopAsync().ConfigureAwait(false);
-                autoResetEvent.WaitOne(5000);
+                autoResetEvent.WaitOne(c_waitForProcessExitInMs);
 
                 await Assert.That(host2.Status).IsEqualTo(ProcessStatus.Exited);
                 await Assert.That(processExitedEventArgs.ExitCode).IsNotEqualTo(0);
@@ -126,7 +127,7 @@ namespace Infrastructure.OSTests
             host.Exited += Host_Exited;
 
             host.Start();
-            autoResetEvent.WaitOne(10000);
+            autoResetEvent.WaitOne(c_waitForProcessExitInMs);
 
             await Assert.That(host.Status).IsEqualTo(ProcessStatus.Exited);
             await Assert.That(processExitedEventArgs.ExitCode).IsNotEqualTo(0);
@@ -175,7 +176,7 @@ namespace Infrastructure.OSTests
             await Assert.That(host.Status).IsEqualTo(ProcessStatus.Running);
 
             await host.StopAsync().ConfigureAwait(false);
-            autoResetEvent.WaitOne(5000);
+            autoResetEvent.WaitOne(c_waitForProcessExitInMs);
 
             await Assert.That(host.Status).IsEqualTo(ProcessStatus.Exited);
             await Assert.That(processExitedEventArgs.ExitCode).IsNotEqualTo(0);

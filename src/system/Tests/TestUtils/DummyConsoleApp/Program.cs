@@ -13,13 +13,13 @@ namespace DummyConsoleApp
 
             if (args?.Length == 1 && string.Equals(args[0], "-explode"))
             {
-                throw new Exception("Boom");
+                Environment.Exit(-1);
             }
 
             string? readLine = Console.ReadLine();
             await Console.Out.WriteLineAsync($"You have entered '{readLine}'").ConfigureAwait(false);
 
-            await Console.Out.WriteAsync($"Press any key to exit").ConfigureAwait(false);
+            await Console.Out.WriteAsync("Press any key to exit").ConfigureAwait(false);
             Console.Read();
         }
     }
