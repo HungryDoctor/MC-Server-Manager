@@ -1,5 +1,4 @@
 ﻿using Infrastructure.Extensions;
-using Infrastructure.OS.Processes.Utils;
 using System;
 using System.Management;
 using System.Runtime.Versioning;
