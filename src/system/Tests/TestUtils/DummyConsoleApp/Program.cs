@@ -20,7 +20,7 @@ namespace ConsoleApp
             await Console.Out.WriteLineAsync($"You have entered '{readLine}'").ConfigureAwait(false);
 
             await Console.Out.WriteAsync($"Press any key to exit").ConfigureAwait(false);
-            Console.ReadKey();
+            Console.Read();
         }
     }
 }
