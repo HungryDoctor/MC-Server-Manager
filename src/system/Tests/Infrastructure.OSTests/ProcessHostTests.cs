@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using TUnit.Assertions.Extensions;
 
 namespace Infrastructure.OSTests
 {
@@ -62,6 +63,7 @@ namespace Infrastructure.OSTests
         {
             AutoResetEvent autoResetEvent = new AutoResetEvent(false);
             ProcessExitedEventArgs processExitedEventArgs = null!;
+            ProcessHost exitHost = null!;
 
             ProcessHost host = CreateProcessHost();
             host.Exited += Host_Exited;
@@ -72,11 +74,13 @@ namespace Infrastructure.OSTests
 
             await Assert.That(host.Status).IsEqualTo(ProcessStatus.Exited);
             await Assert.That(processExitedEventArgs.ExitCode).IsNotEqualTo(0);
+            await Assert.That(exitHost).IsEqualTo(host);
 
 
             void Host_Exited(object? sender, ProcessExitedEventArgs e)
             {
                 autoResetEvent.Set();
+                exitHost = (sender as ProcessHost)!;
                 processExitedEventArgs = e;
             }
         }
