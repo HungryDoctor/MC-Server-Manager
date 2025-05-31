@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.OS
+﻿namespace Infrastructure.OS.Processes
 {
     public enum ProcessStatus : byte
     {

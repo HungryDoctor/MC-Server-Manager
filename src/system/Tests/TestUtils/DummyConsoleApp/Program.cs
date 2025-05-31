@@ -9,18 +9,40 @@ namespace DummyConsoleApp
         {
             await Console.Out.WriteLineAsync($"Args: {string.Join(" ", args)}").ConfigureAwait(false);
             await Console.Out.WriteLineAsync("Dummy logline").ConfigureAwait(false);
-            await Console.Out.WriteAsync("Enter something: ").ConfigureAwait(false);
+            await Console.Out.WriteLineAsync("Enter something").ConfigureAwait(false);
 
             if (args?.Length == 1 && string.Equals(args[0], "-explode"))
             {
-                Environment.Exit(-1);
+                throw new CustomException("Booom");
             }
 
-            string? readLine = Console.ReadLine();
-            await Console.Out.WriteLineAsync($"You have entered '{readLine}'").ConfigureAwait(false);
+            string? line;
+            while ((line = Console.ReadLine()) != null)
+            {
+                await Console.Out.WriteLineAsync("Echo").ConfigureAwait(false);
+                await Console.Out.WriteLineAsync(line).ConfigureAwait(false);
+                await Console.Out.WriteLineAsync().ConfigureAwait(false);
 
-            await Console.Out.WriteAsync("Press any key to exit").ConfigureAwait(false);
-            Console.Read();
+                if (string.Equals(line, "stop", StringComparison.OrdinalIgnoreCase))
+                {
+                    break;
+                }
+            }
+        }
+
+        private sealed class CustomException : Exception
+        {
+            public CustomException() : base()
+            {
+            }
+
+            public CustomException(string? message) : base(message)
+            {
+            }
+
+            public CustomException(string? message, Exception? innerException) : base(message, innerException)
+            {
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.IO;
 
-namespace Infrastructure.OS
+namespace Infrastructure.OS.Processes
 {
     public class ProcessHostFactory : IProcessHostFactory
     {
