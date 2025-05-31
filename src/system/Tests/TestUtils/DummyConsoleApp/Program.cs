@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace ConsoleApp
+namespace DummyConsoleApp
 {
     public static class Program
     {
         static async Task Main(string[] args)
         {
-            await Console.Out.WriteLineAsync($"Args: {args}").ConfigureAwait(false);
+            await Console.Out.WriteLineAsync($"Args: {string.Concat(" ", args)}").ConfigureAwait(false);
             await Console.Out.WriteLineAsync("Dummy logline").ConfigureAwait(false);
             await Console.Out.WriteAsync("Enter something: ").ConfigureAwait(false);
 
