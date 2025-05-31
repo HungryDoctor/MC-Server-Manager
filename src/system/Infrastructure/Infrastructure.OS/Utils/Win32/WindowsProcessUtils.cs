@@ -36,13 +36,12 @@ namespace Infrastructure.OS.Utils.Win32
             }
 
             int executableStartIndex = commandLine.IndexOf(executable);
-
-            string beginQuotes = commandLine.Substring(0, executableStartIndex);
+            string beginQuotes = commandLine[..executableStartIndex];
             string endQuotes = beginQuotes.ReverseString();
             int endQuotesStartIndex = commandLine.IndexOf(endQuotes, executableStartIndex);
-
             int argsStartIndex = endQuotesStartIndex + endQuotes.Length;
-            string args = commandLine.Substring(argsStartIndex, commandLine.Length - argsStartIndex);
+
+            string args = commandLine[argsStartIndex..];
             args = args.Trim();
 
             return new ProcessParameters(executable, args);
