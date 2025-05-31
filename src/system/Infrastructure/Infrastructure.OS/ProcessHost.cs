@@ -255,12 +255,17 @@ namespace Infrastructure.OS
                 m_workingDir.FullName,
                 m_process?.Id);
 
-            Status = ProcessStatus.Exited;
-
             if (m_process is null)
             {
+                Status = ProcessStatus.Exited;
                 return;
             }
+
+            if (!m_process.HasExited && !m_process.WaitForExit(c_waitForProcessExitInMs))
+            {
+                m_logger.LogWarning("Didn't wait for process '{ProcessPath}' to exit. Proceeding...", m_executable.FullName);
+            }
+            Status = ProcessStatus.Exited;
 
             Exited?.Invoke(this, new ProcessExitedEventArgs(m_process.ExitCode));
         }
