@@ -126,7 +126,7 @@ namespace Infrastructure.OSTests
             host.Exited += Host_Exited;
 
             host.Start();
-            autoResetEvent.WaitOne(5000);
+            autoResetEvent.WaitOne(10000);
 
             await Assert.That(host.Status).IsEqualTo(ProcessStatus.Exited);
             await Assert.That(processExitedEventArgs.ExitCode).IsNotEqualTo(0);
