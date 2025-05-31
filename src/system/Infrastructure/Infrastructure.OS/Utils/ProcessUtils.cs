@@ -26,7 +26,6 @@ namespace Infrastructure.OS.Utils
         public static async Task<int> GetExitCodeAsync(Process process, CancellationToken ct = default)
         {
             int exitCode;
-
             try
             {
                 exitCode = process.ExitCode;
