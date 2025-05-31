@@ -1,7 +1,8 @@
-﻿using Infrastructure.OS;
+﻿using Infrastructure.OS.Processes;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ namespace Infrastructure.OSTests
     public class ProcessHostTests
     {
         private const int c_waitForProcessExitInMs = 20000;
+        private const int c_waitForProcessOutputInMs = 5000;
         private static FileInfo s_dummyConsoleAppFileInfo = null!;
 
 
@@ -85,48 +87,12 @@ namespace Infrastructure.OSTests
         }
 
         [Test]
-        public async Task Status_Exited_After_Reattach_Async()
-        {
-            AutoResetEvent autoResetEvent = new AutoResetEvent(false);
-            ProcessExitedEventArgs processExitedEventArgs = null!;
-
-            ProcessHost host1 = CreateProcessHost();
-            int pid = host1.Start();
-
-            try
-            {
-                ProcessHost host2 = CreateProcessHost();
-                host2.Exited += Host_Exited;
-                await host2.ReattachAsync(pid).ConfigureAwait(false);
-
-                await Assert.That(host2.Status).IsEqualTo(ProcessStatus.Running);
-
-                await host2.StopAsync().ConfigureAwait(false);
-                autoResetEvent.WaitOne(c_waitForProcessExitInMs);
-
-                await Assert.That(host2.Status).IsEqualTo(ProcessStatus.Exited);
-                await Assert.That(processExitedEventArgs.ExitCode).IsNotEqualTo(0);
-            }
-            finally
-            {
-                await host1.StopAsync().ConfigureAwait(false);
-            }
-
-            void Host_Exited(object? _, ProcessExitedEventArgs e)
-            {
-                processExitedEventArgs = e;
-                autoResetEvent.Set();
-            }
-        }
-
-        [Test]
         public async Task Status_Exited_After_StartAndError_Async()
         {
             AutoResetEvent autoResetEvent = new AutoResetEvent(false);
             ProcessExitedEventArgs processExitedEventArgs = null!;
 
-            DirectoryInfo dir = new DirectoryInfo("./");
-            ProcessHost host = CreateProcessHost(s_dummyConsoleAppFileInfo, dir, "-explode");
+            ProcessHost host = CreateProcessHost(s_dummyConsoleAppFileInfo, new DirectoryInfo("./"), "-explode");
             host.Exited += Host_Exited;
 
             host.Start();
@@ -195,6 +161,95 @@ namespace Infrastructure.OSTests
             }
         }
 
+        [Test]
+        public async Task OutputStreams_CanBeRead_Async()
+        {
+            AutoResetEvent errorAutoResetEvent = new AutoResetEvent(false);
+            AutoResetEvent dataAutoResetEvent = new AutoResetEvent(false);
+            ProcessDataReceivedEventArgs errorEventArgs = null!;
+            ProcessDataReceivedEventArgs dataEventArgs = null!;
+
+            ProcessHost host = CreateProcessHost(s_dummyConsoleAppFileInfo, new DirectoryInfo("./"), "-explode");
+
+            try
+            {
+                host.ErrorReceived += Host_ErrorReceived;
+                host.OutputReceived += Host_OutputReceived;
+
+                host.Start();
+                errorAutoResetEvent.WaitOne(c_waitForProcessOutputInMs);
+                dataAutoResetEvent.WaitOne(c_waitForProcessOutputInMs);
+            }
+            finally
+            {
+                await host.DisposeAsync().ConfigureAwait(false);
+            }
+
+            await Assert.That(errorEventArgs.Data).IsNotEmpty();
+            await Assert.That(dataEventArgs.Data).IsNotEmpty();
+
+
+            void Host_ErrorReceived(object? _, ProcessDataReceivedEventArgs e)
+            {
+                errorEventArgs = e;
+                errorAutoResetEvent.Set();
+            }
+
+            void Host_OutputReceived(object? _, ProcessDataReceivedEventArgs e)
+            {
+                dataEventArgs = e;
+                dataAutoResetEvent.Set();
+            }
+        }
+
+        [Test]
+        public async Task Command_CanBeSent_Async()
+        {
+            AutoResetEvent dataAutoResetEvent = new AutoResetEvent(false);
+            ProcessDataReceivedEventArgs dataEventArgs = null!;
+
+            ProcessHost host = CreateProcessHost(s_dummyConsoleAppFileInfo, new DirectoryInfo("./"), "SomeArgs");
+
+            string command = null!;
+            try
+            {
+                host.OutputReceived += Host_OutputReceived;
+
+                host.Start();
+
+                await Task.Delay(1000).ConfigureAwait(false);
+
+                command = "command1";
+                await host.SendCommandAsync(command).ConfigureAwait(false);
+                dataAutoResetEvent.WaitOne();
+                await Assert.That(dataEventArgs.Data).IsEqualTo(command);
+
+                command = "command2";
+                await host.SendCommandAsync(command).ConfigureAwait(false);
+                dataAutoResetEvent.WaitOne();
+                await Assert.That(dataEventArgs.Data).IsEqualTo(command);
+
+                command = "command3";
+                await host.SendCommandAsync(command).ConfigureAwait(false);
+                dataAutoResetEvent.WaitOne();
+                await Assert.That(dataEventArgs.Data).IsEqualTo(command);
+            }
+            finally
+            {
+                await host.DisposeAsync().ConfigureAwait(false);
+            }
+
+
+            void Host_OutputReceived(object? _, ProcessDataReceivedEventArgs e)
+            {
+                if (string.Equals(e.Data, command))
+                {
+                    dataEventArgs = e;
+                    dataAutoResetEvent.Set();
+                }
+            }
+        }
+
 
         [Test]
         public void Start_InvalidExecutable_ThrowsFileNotFoundException()
@@ -213,50 +268,6 @@ namespace Infrastructure.OSTests
             ProcessHost host = CreateProcessHost(s_dummyConsoleAppFileInfo, dir, null);
 
             Assert.Throws<DirectoryNotFoundException>(() => host.Start());
-        }
-
-        [Test]
-        public async Task Reattach_WrongExecutable_Throws_InvalidOperationException_Async()
-        {
-            ProcessHost host1 = CreateProcessHost();
-            int pid = host1.Start();
-
-            string tempFileName = Guid.NewGuid().ToString();
-            FileInfo tempFile = new FileInfo(tempFileName);
-            try
-            {
-                await File.Create(tempFileName).DisposeAsync().ConfigureAwait(false);
-
-                DirectoryInfo dir = new DirectoryInfo("./");
-                ProcessHost host2 = CreateProcessHost(tempFile, dir, null);
-
-                await Assert.ThrowsAsync<InvalidOperationException>(() => host2.ReattachAsync(pid)).ConfigureAwait(false);
-            }
-            finally
-            {
-                tempFile.Delete();
-                await host1.StopAsync().ConfigureAwait(false);
-            }
-        }
-
-        [Test]
-        public async Task Reattach_WrongArgs_Throws_InvalidOperationException_Async()
-        {
-            DirectoryInfo dir = new DirectoryInfo("./");
-
-            ProcessHost host1 = CreateProcessHost(s_dummyConsoleAppFileInfo, dir, "someArgs");
-            int pid = host1.Start();
-
-            try
-            {
-                ProcessHost host2 = CreateProcessHost(s_dummyConsoleAppFileInfo, dir, "anotherArgs");
-
-                await Assert.ThrowsAsync<InvalidOperationException>(() => host2.ReattachAsync(pid)).ConfigureAwait(false);
-            }
-            finally
-            {
-                await host1.StopAsync().ConfigureAwait(false);
-            }
         }
 
 

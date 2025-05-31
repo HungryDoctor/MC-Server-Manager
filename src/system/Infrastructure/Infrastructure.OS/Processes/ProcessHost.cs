@@ -1,4 +1,4 @@
-﻿using Infrastructure.OS.Utils;
+﻿using Infrastructure.OS.Processes.Utils;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
@@ -6,7 +6,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Infrastructure.OS
+namespace Infrastructure.OS.Processes
 {
     public class ProcessHost : IAsyncDisposable
     {
@@ -21,6 +21,7 @@ namespace Infrastructure.OS
 
         private Process? m_process;
         private bool m_disposed = false;
+        private bool m_processDisposed = false;
 
         public ProcessStatus Status { get; private set; } = ProcessStatus.NotStarted;
 
@@ -33,6 +34,8 @@ namespace Infrastructure.OS
         }
 
         public event EventHandler<ProcessExitedEventArgs>? Exited;
+        public event EventHandler<ProcessDataReceivedEventArgs>? ErrorReceived;
+        public event EventHandler<ProcessDataReceivedEventArgs>? OutputReceived;
 
 
         public ProcessHost(ILogger<ProcessHost> logger, FileInfo executable, DirectoryInfo workingDir, string? args)
@@ -52,24 +55,53 @@ namespace Infrastructure.OS
 
             GC.SuppressFinalize(this);
 
-            if (m_process is null)
-            {
-                return;
-            }
+            await SafeDisposeProcessAsync().ConfigureAwait(false);
 
-            if (!m_process.HasExited)
+            Exited = null;
+            ErrorReceived = null;
+            OutputReceived = null;
+
+            m_disposed = true;
+
+
+            async Task SafeDisposeProcessAsync()
             {
+                if (m_process is null)
+                {
+                    return;
+                }
+
+                if (m_processDisposed)
+                {
+                    return;
+                }
+
                 try
                 {
-                    await StopAsync().ConfigureAwait(false);
+                    if (m_process.HasExited)
+                    {
+                        m_process.Exited -= OnProcessExited;
+                        m_process.ErrorDataReceived -= OnErrorReceived;
+                        m_process.OutputDataReceived -= OnDataReceived;
+                        m_process.Dispose();
+                    }
+                    else
+                    {
+                        try
+                        {
+                            await StopAsync().ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            m_logger.LogError(ex, "Error occurred on disposing process host");
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
-                    m_logger.LogError(ex, "Error occurred on stopping process {PID}", m_process?.Id);
+                    m_logger.LogError(ex, "Error occurred on disposing process host");
                 }
             }
-
-            m_disposed = true;
         }
 
 
@@ -95,6 +127,8 @@ namespace Infrastructure.OS
                 Arguments = m_args,
                 WorkingDirectory = m_workingDir.FullName,
                 RedirectStandardInput = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
@@ -105,7 +139,12 @@ namespace Infrastructure.OS
                 EnableRaisingEvents = true
             };
 
+            process.Disposed += Process_Disposed;
             process.Exited += OnProcessExited;
+            process.ErrorDataReceived += OnErrorReceived;
+            process.OutputDataReceived += OnDataReceived;
+
+            m_processDisposed = false;
             m_process = process;
 
             if (!process.Start())
@@ -114,56 +153,11 @@ namespace Infrastructure.OS
                 throw new InvalidOperationException($"Failed to start process '{m_executable.FullName}'");
             }
 
+            process.BeginErrorReadLine();
+            process.BeginOutputReadLine();
+
             Status = ProcessStatus.Running;
             return process.Id;
-        }
-
-        public async Task ReattachAsync(int pid, CancellationToken ct = default)
-        {
-            ObjectDisposedException.ThrowIf(m_disposed, this);
-
-            m_logger.LogInformation(
-                "Reattaching to the process '{ProcessPath}' with args {Args} inside working directory '{WorkingDirectory}' with pid {PID}",
-                m_executable.FullName,
-                m_args,
-                m_workingDir.FullName,
-                pid);
-
-            if (Status != ProcessStatus.NotStarted)
-            {
-                throw new InvalidOperationException($"Can reattach only when status is {ProcessStatus.NotStarted}");
-            }
-
-            ValidatePaths();
-
-            Process process = Process.GetProcessById(pid);
-            if (process == null)
-            {
-                throw new InvalidOperationException($"Process {pid} is not found");
-            }
-
-            ProcessParameters processParameters = await ProcessUtils.GetGetProcessParametersAsync(pid, ct).ConfigureAwait(false);
-            if (processParameters.Executable != m_executable.FullName)
-            {
-                throw new InvalidOperationException($"Process {pid} has different executable. Expected '{m_executable.FullName}' but having '{process.Modules[0].FileName}'");
-            }
-
-            if (processParameters.Arguments != (m_args ?? ""))
-            {
-                throw new InvalidOperationException($"Process {pid} has different executable. Expected '{m_args}' but having '{processParameters.Arguments}'");
-            }
-
-            if (m_process != null)
-            {
-                m_process.Exited -= OnProcessExited;
-                m_process.Dispose();
-            }
-
-            process.EnableRaisingEvents = true;
-            process.Exited += OnProcessExited;
-            m_process = process;
-
-            Status = ProcessStatus.Running;
         }
 
         public Task StopAsync(CancellationToken ct = default)
@@ -218,6 +212,8 @@ namespace Infrastructure.OS
             finally
             {
                 m_process.Exited -= OnProcessExited;
+                m_process.ErrorDataReceived -= OnErrorReceived;
+                m_process.OutputDataReceived -= OnDataReceived;
                 m_process.Dispose();
 
                 Status = ProcessStatus.Exited;
@@ -245,6 +241,11 @@ namespace Infrastructure.OS
             await m_process!.StandardInput.FlushAsync().ConfigureAwait(false);
         }
 
+
+        private void Process_Disposed(object? sender, EventArgs e)
+        {
+            m_processDisposed = true;
+        }
 
         private void OnProcessExited(object? sender, EventArgs e)
         {
@@ -277,7 +278,17 @@ namespace Infrastructure.OS
                 m_logger.LogWarning(ex, "Failed to get exit code for '{ProcessPath}' with pid {PID} to exit. Proceeding...", m_executable.FullName, m_process.Id);
             }
 
-            Exited?.Invoke(this, new ProcessExitedEventArgs(exitCode));
+            Exited?.Invoke(this, new ProcessExitedEventArgs(m_process?.Id, exitCode));
+        }
+
+        private void OnErrorReceived(object sender, DataReceivedEventArgs e)
+        {
+            ErrorReceived?.Invoke(this, new ProcessDataReceivedEventArgs(m_process?.Id, e.Data));
+        }
+
+        private void OnDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            OutputReceived?.Invoke(this, new ProcessDataReceivedEventArgs(m_process?.Id, e.Data));
         }
 
         private void ValidatePaths()

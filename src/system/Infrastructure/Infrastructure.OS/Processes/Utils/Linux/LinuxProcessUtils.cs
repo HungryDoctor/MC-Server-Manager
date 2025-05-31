@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Infrastructure.OS.Utils.Linux
+namespace Infrastructure.OS.Processes.Utils.Linux
 {
     [SupportedOSPlatform("linux")]
     internal static class LinuxProcessUtils
@@ -55,7 +55,7 @@ namespace Infrastructure.OS.Utils.Linux
             string[] parts = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length > 13 && int.TryParse(parts[13], out int statusField))
             {
-                return (statusField >> 8) & 0xFF;
+                return statusField >> 8 & 0xFF;
             }
 
             throw new InvalidOperationException($"Can't parse {statPath}");

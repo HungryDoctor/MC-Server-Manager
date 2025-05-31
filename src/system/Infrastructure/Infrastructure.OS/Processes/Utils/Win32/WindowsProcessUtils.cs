@@ -3,7 +3,7 @@ using System;
 using System.Management;
 using System.Runtime.Versioning;
 
-namespace Infrastructure.OS.Utils.Win32
+namespace Infrastructure.OS.Processes.Utils.Win32
 {
     [SupportedOSPlatform("windows")]
     internal static class WindowsProcessUtils

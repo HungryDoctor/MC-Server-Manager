@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace Infrastructure.OS
+namespace Infrastructure.OS.Processes
 {
     public interface IProcessHostFactory
     {

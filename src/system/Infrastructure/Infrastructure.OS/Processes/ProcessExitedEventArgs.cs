@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.OS
+﻿namespace Infrastructure.OS.Processes
 {
     /// <summary>
     /// On Linux, it is possible to get ExitCode only when the app has started the process
@@ -6,5 +6,5 @@
     /// We are trying to fallback to read from /proc/[pid]/stat, but it is unreliable solution
     /// </summary>
     /// <param name="ExitCode">Application exit code</param>
-    public record ProcessExitedEventArgs(int? ExitCode);
+    public record ProcessExitedEventArgs(int? Pid, int? ExitCode);
 }

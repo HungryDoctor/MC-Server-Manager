@@ -1,11 +1,11 @@
-﻿using Infrastructure.OS.Utils.Linux;
-using Infrastructure.OS.Utils.Win32;
+﻿using Infrastructure.OS.Processes.Utils.Linux;
+using Infrastructure.OS.Processes.Utils.Win32;
 using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Infrastructure.OS.Utils
+namespace Infrastructure.OS.Processes.Utils
 {
     public static class ProcessUtils
     {
