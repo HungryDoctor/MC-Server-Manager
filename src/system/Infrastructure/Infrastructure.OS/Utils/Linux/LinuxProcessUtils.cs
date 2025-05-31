@@ -42,5 +42,23 @@ namespace Infrastructure.OS.Utils.Linux
 
             return new ProcessParameters(executable, arguments);
         }
+
+        public static async Task<int> GetExitCodeAsync(int pid, CancellationToken ct = default)
+        {
+            string statPath = $"/proc/{pid}/stat";
+            if (!File.Exists(statPath))
+            {
+                throw new FileNotFoundException(statPath);
+            }
+
+            string text = await File.ReadAllTextAsync(statPath, ct).ConfigureAwait(false);
+            string[] parts = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length > 13 && int.TryParse(parts[13], out int statusField))
+            {
+                return (statusField >> 8) & 0xFF;
+            }
+
+            throw new InvalidOperationException($"Can't parse {statPath}");
+        }
     }
 }

@@ -267,7 +267,8 @@ namespace Infrastructure.OS
             }
             Status = ProcessStatus.Exited;
 
-            Exited?.Invoke(this, new ProcessExitedEventArgs(m_process.ExitCode));
+            int exitCode = ProcessUtils.GetExitCodeAsync(m_process).GetAwaiter().GetResult();
+            Exited?.Invoke(this, new ProcessExitedEventArgs(exitCode));
         }
 
         private void ValidatePaths()
