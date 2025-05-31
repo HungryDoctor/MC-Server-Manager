@@ -263,11 +263,20 @@ namespace Infrastructure.OS
 
             if (!m_process.HasExited && !m_process.WaitForExit(c_waitForProcessExitInMs))
             {
-                m_logger.LogWarning("Didn't wait for process '{ProcessPath}' to exit. Proceeding...", m_executable.FullName);
+                m_logger.LogWarning("Didn't wait for process '{ProcessPath}' with pid {PID} to exit. Proceeding...", m_executable.FullName, m_process.Id);
             }
             Status = ProcessStatus.Exited;
 
-            int exitCode = ProcessUtils.GetExitCodeAsync(m_process).GetAwaiter().GetResult();
+            int? exitCode = null;
+            try
+            {
+                exitCode = ProcessUtils.GetExitCodeAsync(m_process).GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            {
+                m_logger.LogWarning(ex, "Failed to get exit code for '{ProcessPath}' with pid {PID} to exit. Proceeding...", m_executable.FullName, m_process.Id);
+            }
+
             Exited?.Invoke(this, new ProcessExitedEventArgs(exitCode));
         }
 
