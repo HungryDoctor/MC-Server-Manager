@@ -12,6 +12,7 @@ namespace Infrastructure.OS
     {
         private const int c_waitForExitDelayInMs = 1000;
         private const int c_waitForExitRetries = 5;
+        private const int c_waitForProcessExitInMs = 10000;
 
         private readonly ILogger<ProcessHost> m_logger;
         private readonly FileInfo m_executable;
@@ -19,7 +20,6 @@ namespace Infrastructure.OS
         private readonly string? m_args;
 
         private Process? m_process;
-        private TaskCompletionSource m_taskExitAwaiter = new TaskCompletionSource();
         private bool m_disposed = false;
 
         public ProcessStatus Status { get; private set; } = ProcessStatus.NotStarted;
@@ -107,7 +107,6 @@ namespace Infrastructure.OS
 
             process.Exited += OnProcessExited;
             m_process = process;
-            m_taskExitAwaiter = new TaskCompletionSource();
 
             if (!process.Start())
             {
@@ -169,10 +168,10 @@ namespace Infrastructure.OS
 
         public Task StopAsync(CancellationToken ct = default)
         {
-            return StopAsync(TimeSpan.FromSeconds(10), ct);
+            return StopAsync(TimeSpan.FromSeconds(c_waitForProcessExitInMs), ct);
         }
 
-        public async Task StopAsync(TimeSpan waitForExitEvents, CancellationToken ct = default)
+        public async Task StopAsync(TimeSpan waitForExit, CancellationToken ct = default)
         {
             ObjectDisposedException.ThrowIf(m_disposed, this);
 
@@ -210,9 +209,10 @@ namespace Infrastructure.OS
             {
                 m_process.Kill(true);
 
-                if (m_taskExitAwaiter != null)
+                using (CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(ct))
                 {
-                    await m_taskExitAwaiter.Task.WaitAsync(waitForExitEvents, ct).ConfigureAwait(false);
+                    cts.CancelAfter(waitForExit);
+                    await m_process.WaitForExitAsync(cts.Token).ConfigureAwait(false);
                 }
             }
             finally
@@ -263,8 +263,6 @@ namespace Infrastructure.OS
             }
 
             Exited?.Invoke(this, new ProcessExitedEventArgs(m_process.ExitCode));
-
-            m_taskExitAwaiter?.SetResult();
         }
 
         private void ValidatePaths()

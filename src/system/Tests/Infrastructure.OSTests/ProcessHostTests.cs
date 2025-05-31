@@ -79,9 +79,9 @@ namespace Infrastructure.OSTests
 
             void Host_Exited(object? sender, ProcessExitedEventArgs e)
             {
-                autoResetEvent.Set();
                 exitHost = (sender as ProcessHost)!;
                 processExitedEventArgs = e;
+                autoResetEvent.Set();
             }
         }
 
@@ -115,8 +115,8 @@ namespace Infrastructure.OSTests
 
             void Host_Exited(object? sender, ProcessExitedEventArgs e)
             {
-                autoResetEvent.Set();
                 processExitedEventArgs = e;
+                autoResetEvent.Set();
             }
         }
 
@@ -139,8 +139,8 @@ namespace Infrastructure.OSTests
 
             void Host_Exited(object? sender, ProcessExitedEventArgs e)
             {
-                autoResetEvent.Set();
                 processExitedEventArgs = e;
+                autoResetEvent.Set();
             }
         }
 
@@ -162,8 +162,8 @@ namespace Infrastructure.OSTests
 
             void Host_Exited(object? sender, ProcessExitedEventArgs e)
             {
-                autoResetEvent.Set();
                 processExitedEventArgs = e;
+                autoResetEvent.Set();
             }
         }
 
@@ -191,8 +191,8 @@ namespace Infrastructure.OSTests
 
             void Host_Exited(object? sender, ProcessExitedEventArgs e)
             {
-                autoResetEvent.Set();
                 processExitedEventArgs = e;
+                autoResetEvent.Set();
             }
         }
 
