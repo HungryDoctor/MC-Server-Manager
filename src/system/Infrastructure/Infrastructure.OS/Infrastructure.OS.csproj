@@ -9,4 +9,8 @@
     <PackageReference Include="System.Management" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Infrastructure.Extensions\Infrastructure.Extensions.csproj" />
+  </ItemGroup>
+
 </Project>

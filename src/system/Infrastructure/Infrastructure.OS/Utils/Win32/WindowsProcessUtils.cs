@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Infrastructure.Extensions;
+using System;
 using System.Management;
 using System.Runtime.Versioning;
 
@@ -37,7 +38,7 @@ namespace Infrastructure.OS.Utils
             int executableStartIndex = commandLine.IndexOf(executable);
 
             string beginQuotes = commandLine.Substring(0, executableStartIndex);
-            string endQuotes = ReverseString(beginQuotes);
+            string endQuotes = beginQuotes.ReverseString();
             int endQuotesStartIndex = commandLine.IndexOf(endQuotes, executableStartIndex);
 
             int argsStartIndex = endQuotesStartIndex + endQuotes.Length;
@@ -45,23 +46,6 @@ namespace Infrastructure.OS.Utils
             args = args.Trim();
 
             return new ProcessParameters(executable, args);
-        }
-
-        private static string ReverseString(string str)
-        {
-            string reversed = string.Create(
-                str.Length,
-                str,
-                (chars, state) =>
-                {
-                    var pos = 0;
-                    for (int i = state.Length - 1; i >= 0; i--)
-                    {
-                        chars[pos++] = state[i];
-                    }
-                });
-
-            return reversed;
         }
     }
 }

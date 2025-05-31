@@ -8,6 +8,7 @@
     <Project Path="../../system/Contracts/Contracts.Update/Contracts.Update.csproj" Id="e87b41ca-5ad3-43a7-8773-e5c1d0f2ed0a" />
   </Folder>
   <Folder Name="/Infrastructure/">
+    <Project Path="../../system/Infrastructure/Infrastructure.Extensions/Infrastructure.Extensions.csproj" Id="39b689e3-01fe-43e2-9e30-a986c7b27faf" />
     <Project Path="../../system/Infrastructure/Infrastructure.OS/Infrastructure.OS.csproj" Id="8dc8eab8-561a-450e-81bc-f33df47c1abe" />
   </Folder>
   <Folder Name="/Services/">
@@ -22,6 +23,7 @@
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="../../system/Tests/ConfigurationTests/ConfigurationTests.csproj" Id="6a20a6cb-90e8-4d96-86f0-b3b9b073c757" />
+    <Project Path="../../system/Tests/Infrastructure.ExtensionsTests/Infrastructure.ExtensionsTests.csproj" Id="84d96046-9ecc-4d96-bd8c-a4c9238fcbed" />
     <Project Path="../../system/Tests/Infrastructure.OSTests/Infrastructure.OSTests.csproj" Id="d21a6536-affe-4800-8983-f61eed50eb27" />
     <Project Path="../../system/Tests/LifecycleTests/LifecycleTests.csproj" Id="72a09c58-33ca-4d71-8181-083cea4efd44" />
   </Folder>
