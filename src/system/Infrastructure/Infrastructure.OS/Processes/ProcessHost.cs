@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.OS.Processes
 {
-    public class ProcessHost : IProcessHost, IAsyncDisposable, INotifyPropertyChanged
+    public class ProcessHost : IProcessHost, INotifyPropertyChanged
     {
         private const int c_waitForExitDelayInMs = 1000;
         private const int c_waitForExitRetries = 5;

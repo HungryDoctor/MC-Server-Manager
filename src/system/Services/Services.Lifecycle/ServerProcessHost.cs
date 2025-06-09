@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Services.Lifecycle
 {
-    public class ServerProcessHost : IProcessHost, IAsyncDisposable, INotifyPropertyChanged
+    public class ServerProcessHost : IServerProcessHost
     {
         private readonly ILogger<ServerProcessHost> m_logger;
         private readonly ProcessHost m_processHost;
@@ -83,7 +83,7 @@ namespace Services.Lifecycle
             return m_processHost.SendCommandAsync(command, ct);
         }
 
-        public async IAsyncEnumerable<string> GetOutputBufferAsync([EnumeratorCancellation] CancellationToken ct)
+        public async IAsyncEnumerable<string> GetOutputBufferAsync([EnumeratorCancellation] CancellationToken ct = default)
         {
             ObjectDisposedException.ThrowIf(m_disposed, this);
 
@@ -92,7 +92,6 @@ namespace Services.Lifecycle
                 yield return line;
             }
         }
-
 
         private void ProcessHost_Exited(object? sender, ProcessExitedEventArgs e)
         {

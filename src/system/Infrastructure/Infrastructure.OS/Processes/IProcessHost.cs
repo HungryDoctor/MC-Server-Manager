@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.OS.Processes
 {
-    public interface IProcessHost
+    public interface IProcessHost : IAsyncDisposable
     {
         ProcessStatus Status { get; }
         int ProcessId { get; }
