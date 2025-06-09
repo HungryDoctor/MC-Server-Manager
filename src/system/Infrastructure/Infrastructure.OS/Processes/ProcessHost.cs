@@ -53,14 +53,13 @@ namespace Infrastructure.OS.Processes
                 return;
             }
 
-            GC.SuppressFinalize(this);
-
             await SafeDisposeProcessAsync().ConfigureAwait(false);
 
             Exited = null;
             ErrorReceived = null;
             OutputReceived = null;
 
+            GC.SuppressFinalize(this);
             m_disposed = true;
 
 

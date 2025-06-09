@@ -1,0 +1,99 @@
+﻿using Infrastructure.OS.Processes;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Subjects;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Services.Lifecycle
+{
+    public class ServerProcessHost : IAsyncDisposable
+    {
+        private readonly ILogger<ServerProcessHost> m_logger;
+        private readonly ProcessHost m_processHost;
+        private readonly ReplaySubject<string> m_outputBuffer;
+        private bool m_disposed;
+
+
+        public ServerProcessHost(ILogger<ServerProcessHost> logger, ProcessHost processHost)
+        {
+            m_logger = logger;
+            m_processHost = processHost;
+            m_processHost.OutputReceived += ProcessHost_OutputReceived;
+            m_processHost.ErrorReceived += ProcessHost_OutputReceived;
+            m_processHost.Exited += ProcessHost_Exited;
+            //m_jdkFullPath = jdkFullPath;
+            //m_jarFullPath = jarFullPath;
+            //m_serverDir = serverDir;
+            //m_args = args;
+
+            m_outputBuffer = new ReplaySubject<string>();
+
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (m_disposed)
+            {
+                return;
+            }
+
+            try
+            {
+                m_processHost.OutputReceived -= ProcessHost_OutputReceived;
+                m_processHost.ErrorReceived -= ProcessHost_OutputReceived;
+                m_processHost.Exited -= ProcessHost_Exited;
+
+                await m_processHost.DisposeAsync().ConfigureAwait(false);
+                m_outputBuffer.Dispose();
+            }
+            catch (Exception ex)
+            {
+                m_logger.LogError(ex, "Error occurred during dispose");
+            }
+
+            GC.SuppressFinalize(this);
+            m_disposed = true;
+        }
+
+
+        public async IAsyncEnumerable<string> GetOutputBufferAsync([EnumeratorCancellation] CancellationToken ct)
+        {
+            ObjectDisposedException.ThrowIf(m_disposed, this);
+
+            await foreach (string line in m_outputBuffer.ToAsyncEnumerable().WithCancellation(ct))
+            {
+                yield return line;
+            }
+        }
+
+        private void ProcessHost_Exited(object? sender, ProcessExitedEventArgs e)
+        {
+            if (m_disposed)
+            {
+                return;
+            }
+
+            m_outputBuffer.OnCompleted();
+        }
+
+        private void ProcessHost_OutputReceived(object? sender, ProcessDataReceivedEventArgs e)
+        {
+            if (m_disposed)
+            {
+                return;
+            }
+
+            string? data = e.Data;
+            if (data is null)
+            {
+                return;
+            }
+
+            m_outputBuffer.OnNext(data);
+        }
+    }
+}
