@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System.IO;
 
-namespace Services.Lifecycle
+namespace Services.Lifecycle.ServerProcess
 {
     public class ServerProcessHostFactory : IServerProcessHostFactory
     {

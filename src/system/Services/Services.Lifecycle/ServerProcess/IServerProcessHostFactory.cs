@@ -1,4 +1,4 @@
-﻿namespace Services.Lifecycle
+﻿namespace Services.Lifecycle.ServerProcess
 {
     public interface IServerProcessHostFactory
     {

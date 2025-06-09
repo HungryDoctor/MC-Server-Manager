@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
 
-namespace Services.Lifecycle
+namespace Services.Lifecycle.ServerProcess
 {
     public interface IServerProcessHost : IProcessHost, INotifyPropertyChanged
     {
