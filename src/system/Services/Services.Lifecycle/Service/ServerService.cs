@@ -10,11 +10,13 @@ namespace Services.Lifecycle.Service
     public class ServerService : IServerManager
     {
         private readonly IServerStateRepository m_serverStateRepository;
+        private readonly IServerProcessHostFactory m_serverProcessHostFactory;
 
 
-        public ServerService(IServerStateRepository serverStateRepository)
+        public ServerService(IServerStateRepository serverStateRepository, IServerProcessHostFactory serverProcessHostFactory)
         {
             m_serverStateRepository = serverStateRepository;
+            m_serverProcessHostFactory = serverProcessHostFactory;
         }
 
 

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
@@ -10,12 +11,17 @@ using System.Threading.Tasks;
 
 namespace Services.Lifecycle
 {
-    public class ServerProcessHost : IAsyncDisposable
+    public class ServerProcessHost : IProcessHost, IAsyncDisposable, INotifyPropertyChanged
     {
         private readonly ILogger<ServerProcessHost> m_logger;
         private readonly ProcessHost m_processHost;
         private readonly ReplaySubject<string> m_outputBuffer;
         private bool m_disposed;
+
+        public ProcessStatus Status => m_processHost.Status;
+        public int ProcessId => m_processHost.ProcessId;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
 
 
         public ServerProcessHost(ILogger<ServerProcessHost> logger, ProcessHost processHost)
@@ -25,13 +31,9 @@ namespace Services.Lifecycle
             m_processHost.OutputReceived += ProcessHost_OutputReceived;
             m_processHost.ErrorReceived += ProcessHost_OutputReceived;
             m_processHost.Exited += ProcessHost_Exited;
-            //m_jdkFullPath = jdkFullPath;
-            //m_jarFullPath = jarFullPath;
-            //m_serverDir = serverDir;
-            //m_args = args;
+            m_processHost.PropertyChanged += ProcessHost_PropertyChanged;
 
             m_outputBuffer = new ReplaySubject<string>();
-
         }
 
         public async ValueTask DisposeAsync()
@@ -46,6 +48,7 @@ namespace Services.Lifecycle
                 m_processHost.OutputReceived -= ProcessHost_OutputReceived;
                 m_processHost.ErrorReceived -= ProcessHost_OutputReceived;
                 m_processHost.Exited -= ProcessHost_Exited;
+                m_processHost.PropertyChanged -= ProcessHost_PropertyChanged;
 
                 await m_processHost.DisposeAsync().ConfigureAwait(false);
                 m_outputBuffer.Dispose();
@@ -60,6 +63,26 @@ namespace Services.Lifecycle
         }
 
 
+        public int Start()
+        {
+            return m_processHost.Start();
+        }
+
+        public Task StopAsync(CancellationToken ct = default)
+        {
+            return m_processHost.StopAsync(ct);
+        }
+
+        public Task StopAsync(TimeSpan waitForExit, CancellationToken ct = default)
+        {
+            return m_processHost.StopAsync(waitForExit, ct);
+        }
+
+        public Task SendCommandAsync(string command, CancellationToken ct = default)
+        {
+            return m_processHost.SendCommandAsync(command, ct);
+        }
+
         public async IAsyncEnumerable<string> GetOutputBufferAsync([EnumeratorCancellation] CancellationToken ct)
         {
             ObjectDisposedException.ThrowIf(m_disposed, this);
@@ -69,6 +92,7 @@ namespace Services.Lifecycle
                 yield return line;
             }
         }
+
 
         private void ProcessHost_Exited(object? sender, ProcessExitedEventArgs e)
         {
@@ -94,6 +118,21 @@ namespace Services.Lifecycle
             }
 
             m_outputBuffer.OnNext(data);
+        }
+
+        private void ProcessHost_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            string? propertyName = e.PropertyName;
+            if (propertyName == nameof(Status) ||
+                propertyName == nameof(ProcessId))
+            {
+                NotifyPropertyChanged(propertyName);
+            }
+        }
+
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
