@@ -2,6 +2,6 @@
 {
     public interface IServerProcessHostFactory
     {
-        ServerProcessHost Create(ServerProcessStartInfo serverProcessStartInfo);
+        IServerProcessHost Create(ServerProcessStartInfo serverProcessStartInfo);
     }
 }

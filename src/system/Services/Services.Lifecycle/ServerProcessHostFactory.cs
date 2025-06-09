@@ -15,7 +15,7 @@ namespace Services.Lifecycle
         }
 
 
-        public ServerProcessHost Create(ServerProcessStartInfo serverProcessStartInfo)
+        public IServerProcessHost Create(ServerProcessStartInfo serverProcessStartInfo)
         {
             ProcessHost processHost = CreateProcessHost(serverProcessStartInfo);
             ServerProcessHost serverProcessHost = CreateServerProcessHost(processHost);
