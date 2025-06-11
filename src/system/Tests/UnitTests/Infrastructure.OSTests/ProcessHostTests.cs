@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -59,6 +60,37 @@ namespace Infrastructure.OSTests
                 host.Start();
 
                 await Assert.That(host.Status).IsEqualTo(ProcessStatus.Running);
+                await Assert.That(host.ProcessId).IsGreaterThan(0);
+            }
+        }
+
+        [Test]
+        public async Task PropertyChanged_After_StatusChange_Async()
+        {
+            bool statusChanged = false;
+            bool processIdChanged = false;
+
+            await using (ProcessHost host = CreateProcessHost())
+            {
+                host.PropertyChanged += Host_PropertyChanged;
+                host.Start();
+
+                await Assert.That(statusChanged).IsTrue();
+                await Assert.That(processIdChanged).IsTrue();
+            }
+
+
+            void Host_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+            {
+                if (e?.PropertyName == nameof(IProcessHost.Status))
+                {
+                    statusChanged = true;
+                }
+
+                if (e?.PropertyName == nameof(IProcessHost.ProcessId))
+                {
+                    processIdChanged = true;
+                }
             }
         }
 
