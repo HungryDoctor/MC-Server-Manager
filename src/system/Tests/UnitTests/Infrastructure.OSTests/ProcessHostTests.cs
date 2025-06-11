@@ -397,10 +397,7 @@ namespace Infrastructure.OSTests
                 autoResetEvent.WaitOne(c_waitForProcessExitInMs);
 
                 await Assert.That(host.Status).IsEqualTo(ProcessStatus.Exited);
-                await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                {
-                    await host.SendCommandAsync("never gonna happen").ConfigureAwait(false);
-                });
+                await Assert.ThrowsAsync<InvalidOperationException>(async () => await host.SendCommandAsync("never gonna happen").ConfigureAwait(false));
             }
 
 
