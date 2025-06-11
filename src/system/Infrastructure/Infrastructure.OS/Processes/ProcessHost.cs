@@ -1,14 +1,16 @@
 ﻿using Infrastructure.OS.Processes.Utils;
 using Microsoft.Extensions.Logging;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Infrastructure.OS.Processes
 {
-    public class ProcessHost : IAsyncDisposable
+    public class ProcessHost : IProcessHost, INotifyPropertyChanged
     {
         private const int c_waitForExitDelayInMs = 1000;
         private const int c_waitForExitRetries = 5;
@@ -22,21 +24,34 @@ namespace Infrastructure.OS.Processes
         private Process? m_process;
         private bool m_disposed = false;
         private bool m_processDisposed = false;
+        private ProcessStatus m_statusField = ProcessStatus.NotStarted;
 
-        public ProcessStatus Status { get; private set; } = ProcessStatus.NotStarted;
+        public ProcessStatus Status
+        {
+            get => m_statusField;
+
+            private set
+            {
+                if (value != m_statusField)
+                {
+                    m_statusField = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
         public int ProcessId
         {
             get
             {
-                return m_process?.Id ?? throw new InvalidOperationException($"Process '{m_executable.FullName}' is not started");
+                return m_process?.Id ?? -1;
             }
         }
 
         public event EventHandler<ProcessExitedEventArgs>? Exited;
         public event EventHandler<ProcessDataReceivedEventArgs>? ErrorReceived;
         public event EventHandler<ProcessDataReceivedEventArgs>? OutputReceived;
-
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public ProcessHost(ILogger<ProcessHost> logger, FileInfo executable, DirectoryInfo workingDir, string? args)
         {
@@ -53,14 +68,14 @@ namespace Infrastructure.OS.Processes
                 return;
             }
 
-            GC.SuppressFinalize(this);
-
             await SafeDisposeProcessAsync().ConfigureAwait(false);
 
             Exited = null;
             ErrorReceived = null;
             OutputReceived = null;
+            PropertyChanged = null;
 
+            GC.SuppressFinalize(this);
             m_disposed = true;
 
 
@@ -155,6 +170,7 @@ namespace Infrastructure.OS.Processes
 
             process.BeginErrorReadLine();
             process.BeginOutputReadLine();
+            NotifyPropertyChanged(nameof(ProcessId));
 
             Status = ProcessStatus.Running;
             return process.Id;
@@ -220,7 +236,7 @@ namespace Infrastructure.OS.Processes
             }
         }
 
-        public async Task SendCommandAsync(string command)
+        public async Task SendCommandAsync(string command, CancellationToken ct = default)
         {
             ObjectDisposedException.ThrowIf(m_disposed, this);
 
@@ -237,10 +253,15 @@ namespace Infrastructure.OS.Processes
                 throw new InvalidOperationException($"Process '{m_executable.FullName}' is not running");
             }
 
-            await m_process!.StandardInput.WriteLineAsync(command).ConfigureAwait(false);
-            await m_process!.StandardInput.FlushAsync().ConfigureAwait(false);
+            await m_process!.StandardInput.WriteLineAsync(command.AsMemory(), ct).ConfigureAwait(false);
+            await m_process!.StandardInput.FlushAsync(ct).ConfigureAwait(false);
         }
 
+
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         private void Process_Disposed(object? sender, EventArgs e)
         {
@@ -258,7 +279,9 @@ namespace Infrastructure.OS.Processes
 
             if (m_process is null)
             {
+                NotifyPropertyChanged(nameof(ProcessId));
                 Status = ProcessStatus.Exited;
+
                 return;
             }
 
@@ -266,6 +289,8 @@ namespace Infrastructure.OS.Processes
             {
                 m_logger.LogWarning("Didn't wait for process '{ProcessPath}' with pid {PID} to exit. Proceeding...", m_executable.FullName, m_process.Id);
             }
+
+            NotifyPropertyChanged(nameof(ProcessId));
             Status = ProcessStatus.Exited;
 
             int? exitCode = null;
