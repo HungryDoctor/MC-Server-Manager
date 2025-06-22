@@ -1,8 +1,8 @@
 ﻿using Contracts.Configuration;
+using DbTestsBase;
 using Services.Configuration.Repository;
 using System;
 using System.Threading.Tasks;
-using TestsBase;
 
 namespace ConfigurationTests
 {

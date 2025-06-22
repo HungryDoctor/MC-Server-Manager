@@ -1,6 +1,7 @@
 ﻿using Infrastructure.OS.Processes;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using ProcessTestsBase;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -9,40 +10,8 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.OSTests
 {
-    public class ProcessHostTests
+    public class ProcessHostTests : DummyProcessTestBase
     {
-        private const int c_waitForProcessExitInMs = 20000;
-        private const int c_waitForProcessOutputInMs = 5000;
-        private const int c_waitForProcessToStartInMs = 1000;
-        private static FileInfo s_dummyConsoleAppFileInfo = null!;
-
-
-        [Before(HookType.Class)]
-        public static void InitializeTest()
-        {
-            const string dummyConsoleAppName = "./DummyConsoleApp";
-
-            if (OperatingSystem.IsWindows())
-            {
-                s_dummyConsoleAppFileInfo = new FileInfo($"{dummyConsoleAppName}.exe");
-            }
-            else if (OperatingSystem.IsLinux())
-            {
-                s_dummyConsoleAppFileInfo = new FileInfo(dummyConsoleAppName);
-            }
-            else
-            {
-                throw new PlatformNotSupportedException("Unknown OS for testing.");
-            }
-
-            s_dummyConsoleAppFileInfo.Refresh();
-            if (!s_dummyConsoleAppFileInfo.Exists)
-            {
-                throw new InvalidOperationException($"Dummy console app is missing by path '{s_dummyConsoleAppFileInfo.FullName}'");
-            }
-        }
-
-
         [Test]
         public async Task Status_NotStarted_After_Creation_Async()
         {

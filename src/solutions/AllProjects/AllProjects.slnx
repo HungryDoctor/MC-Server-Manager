@@ -27,8 +27,10 @@
     <Project Path="../../system/Tests/UnitTests/Infrastructure.OSTests/Infrastructure.OSTests.csproj" Id="d21a6536-affe-4800-8983-f61eed50eb27" />
     <Project Path="../../system/Tests/UnitTests/LifecycleTests/LifecycleTests.csproj" Id="72a09c58-33ca-4d71-8181-083cea4efd44" />
   </Folder>
+  <Folder Name="/Tests/" />
   <Folder Name="/Tests/Infrastructure/">
-    <Project Path="../../system/Tests/Infrastructure/TestsBase/TestsBase.csproj" Id="76c49239-2180-49ea-afb7-88b3070daa95" />
+    <Project Path="../../system/Tests/Infrastructure/DbTestsBase/DbTestsBase.csproj" Id="76c49239-2180-49ea-afb7-88b3070daa95" />
+    <Project Path="../../system/Tests/Infrastructure/ProcessTestsBase/ProcessTestsBase.csproj" Id="13b7316c-fa7b-423a-abbc-ec0bdfa57dd2" />
   </Folder>
   <Folder Name="/Tests/TestUtils/">
     <Project Path="../../system/Tests/TestUtils/DummyConsoleApp/DummyConsoleApp.csproj" Id="2bb19d02-2ced-4bb7-8f31-30e21baa2eee" />

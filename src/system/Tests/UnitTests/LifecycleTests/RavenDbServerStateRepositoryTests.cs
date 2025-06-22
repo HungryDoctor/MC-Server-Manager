@@ -1,9 +1,9 @@
 ﻿using Contracts.Lifecycle;
+using DbTestsBase;
 using Services.Lifecycle.Repository;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TestsBase;
 
 namespace LifecycleTests
 {
