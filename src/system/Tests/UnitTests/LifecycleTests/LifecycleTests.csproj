@@ -13,7 +13,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Services\Services.Lifecycle\Services.Lifecycle.csproj" />
     <ProjectReference Include="..\..\Infrastructure\DbTestsBase\DbTestsBase.csproj" />
-    <ProjectReference Include="..\..\Infrastructure\ProcessTestBase\ProcessTestsBase.csproj" />
     <ProjectReference Include="..\..\Infrastructure\ProcessTestsBase\ProcessTestsBase.csproj" />
   </ItemGroup>
 

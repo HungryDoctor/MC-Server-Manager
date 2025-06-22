@@ -120,7 +120,7 @@ namespace LifecycleTests
             {
                 host.Start();
 
-                await Task.Delay(c_waitForProcessToStartInMs).ConfigureAwait(false);
+                await Task.Delay(c_waitForProcessToStartInMs * 2).ConfigureAwait(false);
                 await host.StopAsync().ConfigureAwait(false);
 
                 List<ConsoleOutput> outputList = new List<ConsoleOutput>();
