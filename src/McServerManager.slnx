@@ -1,0 +1,38 @@
+<Solution>
+  <Folder Name="/Contracts/">
+    <Project Path="./Contracts/Contracts.Backup/Contracts.Backup.csproj" Id="3cad12fb-a21c-41e2-9037-ead80ce0c30c" />
+    <Project Path="./Contracts/Contracts.Configuration/Contracts.Configuration.csproj" Id="5bd2d873-300c-4013-94db-b26aad8ea424" />
+    <Project Path="./Contracts/Contracts.Jdk/Contracts.Jdk.csproj" Id="6c8e5f15-17cb-43c0-96bb-fbecb7d6bfd1" />
+    <Project Path="./Contracts/Contracts.Lifecycle/Contracts.Lifecycle.csproj" />
+    <Project Path="./Contracts/Contracts.Notification/Contracts.Notification.csproj" Id="bef2b89f-887a-4b5c-82fe-2848d32dc54f" />
+    <Project Path="./Contracts/Contracts.Update/Contracts.Update.csproj" Id="e87b41ca-5ad3-43a7-8773-e5c1d0f2ed0a" />
+  </Folder>
+  <Folder Name="/Infrastructure/">
+    <Project Path="./Infrastructure/Infrastructure.Extensions/Infrastructure.Extensions.csproj" Id="39b689e3-01fe-43e2-9e30-a986c7b27faf" />
+    <Project Path="./Infrastructure/Infrastructure.OS/Infrastructure.OS.csproj" Id="8dc8eab8-561a-450e-81bc-f33df47c1abe" />
+  </Folder>
+  <Folder Name="/Services/">
+    <Project Path="./Services/Services.Configuration/Services.Configuration.csproj" Id="c96539a9-f788-44e5-8916-f1bb5a1c0683" />
+    <Project Path="./Services/Services.Lifecycle/Services.Lifecycle.csproj" Id="7aac00e0-8daf-4288-977f-f24cf8eb3e64" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="./Directory.Build.props" />
+    <File Path="./Directory.Packages.props" />
+    <File Path="./global.json" />
+    <File Path="./NuGet.config" />
+  </Folder>
+  <Folder Name="/Tests/" />
+  <Folder Name="/Tests/UnitTests/">
+    <Project Path="./Tests/UnitTests/ConfigurationTests/ConfigurationTests.csproj" Id="6a20a6cb-90e8-4d96-86f0-b3b9b073c757" />
+    <Project Path="./Tests/UnitTests/Infrastructure.ExtensionsTests/Infrastructure.ExtensionsTests.csproj" Id="84d96046-9ecc-4d96-bd8c-a4c9238fcbed" />
+    <Project Path="./Tests/UnitTests/Infrastructure.OSTests/Infrastructure.OSTests.csproj" Id="d21a6536-affe-4800-8983-f61eed50eb27" />
+    <Project Path="./Tests/UnitTests/LifecycleTests/LifecycleTests.csproj" Id="72a09c58-33ca-4d71-8181-083cea4efd44" />
+  </Folder>
+  <Folder Name="/Tests/Infrastructure/">
+    <Project Path="./Tests/Infrastructure/DbTestsBase/DbTestsBase.csproj" Id="76c49239-2180-49ea-afb7-88b3070daa95" />
+    <Project Path="./Tests/Infrastructure/ProcessTestsBase/ProcessTestsBase.csproj" Id="13b7316c-fa7b-423a-abbc-ec0bdfa57dd2" />
+  </Folder>
+  <Folder Name="/Tests/TestUtils/">
+    <Project Path="./Tests/TestUtils/DummyConsoleApp/DummyConsoleApp.csproj" Id="2bb19d02-2ced-4bb7-8f31-30e21baa2eee" />
+  </Folder>
+</Solution>
