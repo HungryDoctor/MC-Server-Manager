@@ -56,6 +56,7 @@ namespace Services.Lifecycle.ServerProcess
                 m_processHost.PropertyChanged -= ProcessHost_PropertyChanged;
 
                 await m_processHost.DisposeAsync().ConfigureAwait(false);
+                m_outputBuffer.OnCompleted();
 
                 PropertyChanged = null;
 
