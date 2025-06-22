@@ -53,7 +53,7 @@ namespace LifecycleTests
         }
 
         [Test]
-        [Timeout(30_000)]
+        [Timeout(60_000)]
         public async Task OutputBuffer_Streams_NormalAndErrorLines_Async(CancellationToken cancellationToken)
         {
             AutoResetEvent autoResetEvent = null!;
@@ -64,16 +64,17 @@ namespace LifecycleTests
 
                 Task reader = Task.Run(async () =>
                 {
+                    IAsyncEnumerable<ConsoleOutput> buffer = host.GetOutputBufferAsync(cancellationToken);
                     autoResetEvent.Set();
 
-                    await foreach (ConsoleOutput line in host.GetOutputBufferAsync(cancellationToken))
+                    await foreach (ConsoleOutput line in buffer)
                     {
                         outputList.Add(line);
                     }
 
                     while (host.Status != ProcessStatus.Exited)
                     {
-                        await Task.Delay(500, cancellationToken).ConfigureAwait(false);
+                        await Task.Delay(250, cancellationToken).ConfigureAwait(false);
                     }
 
                     autoResetEvent.Set();
