@@ -53,7 +53,8 @@ namespace LifecycleTests
         }
 
         [Test]
-        public async Task OutputBuffer_Streams_NormalAndErrorLines_Async()
+        [Timeout(30_000)]
+        public async Task OutputBuffer_Streams_NormalAndErrorLines_Async(CancellationToken cancellationToken)
         {
             AutoResetEvent autoResetEvent = null!;
             await using (ServerProcessHost host = CreateServerProcessHost("-explode"))
@@ -63,19 +64,28 @@ namespace LifecycleTests
 
                 Task reader = Task.Run(async () =>
                 {
-                    await foreach (ConsoleOutput line in host.GetOutputBufferAsync())
+                    autoResetEvent.Set();
+
+                    await foreach (ConsoleOutput line in host.GetOutputBufferAsync(cancellationToken))
                     {
                         outputList.Add(line);
                     }
 
+                    while (host.Status != ProcessStatus.Exited)
+                    {
+                        await Task.Delay(500, cancellationToken).ConfigureAwait(false);
+                    }
+
                     autoResetEvent.Set();
-                });
+                },
+                cancellationToken);
 
+                autoResetEvent.WaitOne();
                 host.Start();
-                autoResetEvent.WaitOne(c_waitForProcessOutputInMs);
+                autoResetEvent.WaitOne(c_waitForProcessExitInMs);
 
-                await Assert.That(host.Status).IsEqualTo(ProcessStatus.Exited);
                 await reader.ConfigureAwait(false);
+                await Assert.That(host.Status).IsEqualTo(ProcessStatus.Exited);
 
                 await Assert.That(outputList.Count).IsGreaterThan(0);
                 await Assert.That(outputList.Any(o => o.OutputLevel == OutputLevel.Normal)).IsTrue();
