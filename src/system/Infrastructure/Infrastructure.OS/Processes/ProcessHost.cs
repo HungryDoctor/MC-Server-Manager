@@ -55,6 +55,10 @@ namespace Infrastructure.OS.Processes
 
         public ProcessHost(ILogger<ProcessHost> logger, FileInfo executable, DirectoryInfo workingDir, string? args)
         {
+            ArgumentNullException.ThrowIfNull(logger);
+            ArgumentNullException.ThrowIfNull(executable);
+            ArgumentNullException.ThrowIfNull(workingDir);
+
             m_logger = logger;
             m_executable = executable;
             m_workingDir = workingDir;

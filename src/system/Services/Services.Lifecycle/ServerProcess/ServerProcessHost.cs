@@ -1,4 +1,5 @@
-﻿using Infrastructure.OS.Processes;
+﻿using Contracts.Lifecycle;
+using Infrastructure.OS.Processes;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,8 @@ namespace Services.Lifecycle.ServerProcess
     {
         private readonly ILogger<ServerProcessHost> m_logger;
         private readonly ProcessHost m_processHost;
-        private readonly ReplaySubject<string> m_outputBuffer;
+        private readonly ReplaySubject<ConsoleOutput> m_outputBuffer;
+        private int m_activeReaders;
         private bool m_disposed;
 
         public ProcessStatus Status => m_processHost.Status;
@@ -26,14 +28,17 @@ namespace Services.Lifecycle.ServerProcess
 
         public ServerProcessHost(ILogger<ServerProcessHost> logger, ProcessHost processHost)
         {
+            ArgumentNullException.ThrowIfNull(logger);
+            ArgumentNullException.ThrowIfNull(processHost);
+
             m_logger = logger;
             m_processHost = processHost;
             m_processHost.OutputReceived += ProcessHost_OutputReceived;
-            m_processHost.ErrorReceived += ProcessHost_OutputReceived;
+            m_processHost.ErrorReceived += ProcessHost_ErrorReceived;
             m_processHost.Exited += ProcessHost_Exited;
             m_processHost.PropertyChanged += ProcessHost_PropertyChanged;
 
-            m_outputBuffer = new ReplaySubject<string>();
+            m_outputBuffer = new ReplaySubject<ConsoleOutput>();
         }
 
         public async ValueTask DisposeAsync()
@@ -46,15 +51,18 @@ namespace Services.Lifecycle.ServerProcess
             try
             {
                 m_processHost.OutputReceived -= ProcessHost_OutputReceived;
-                m_processHost.ErrorReceived -= ProcessHost_OutputReceived;
+                m_processHost.ErrorReceived -= ProcessHost_ErrorReceived;
                 m_processHost.Exited -= ProcessHost_Exited;
                 m_processHost.PropertyChanged -= ProcessHost_PropertyChanged;
 
                 await m_processHost.DisposeAsync().ConfigureAwait(false);
 
-                m_outputBuffer.OnCompleted();
-                m_outputBuffer.Dispose();
                 PropertyChanged = null;
+
+                if (Volatile.Read(ref m_activeReaders) == 0)
+                {
+                    m_outputBuffer.Dispose();
+                }
             }
             catch (Exception ex)
             {
@@ -94,13 +102,24 @@ namespace Services.Lifecycle.ServerProcess
             return m_processHost.SendCommandAsync(command, ct);
         }
 
-        public async IAsyncEnumerable<string> GetOutputBufferAsync([EnumeratorCancellation] CancellationToken ct = default)
+        public async IAsyncEnumerable<ConsoleOutput> GetOutputBufferAsync([EnumeratorCancellation] CancellationToken ct = default)
         {
             ObjectDisposedException.ThrowIf(m_disposed, this);
 
-            await foreach (string line in m_outputBuffer.ToAsyncEnumerable().WithCancellation(ct))
+            Interlocked.Increment(ref m_activeReaders);
+            try
             {
-                yield return line;
+                await foreach (ConsoleOutput line in m_outputBuffer.ToAsyncEnumerable().WithCancellation(ct))
+                {
+                    yield return line;
+                }
+            }
+            finally
+            {
+                if (Interlocked.Decrement(ref m_activeReaders) == 0 && m_disposed)
+                {
+                    m_outputBuffer.Dispose();
+                }
             }
         }
 
@@ -121,13 +140,27 @@ namespace Services.Lifecycle.ServerProcess
                 return;
             }
 
-            string? data = e.Data;
-            if (data is null)
+            if (e.Data == null)
             {
                 return;
             }
 
-            m_outputBuffer.OnNext(data);
+            m_outputBuffer.OnNext(new ConsoleOutput(OutputLevel.Normal, e.Data));
+        }
+
+        private void ProcessHost_ErrorReceived(object? sender, ProcessDataReceivedEventArgs e)
+        {
+            if (m_disposed)
+            {
+                return;
+            }
+
+            if (e.Data == null)
+            {
+                return;
+            }
+
+            m_outputBuffer.OnNext(new ConsoleOutput(OutputLevel.Error, e.Data));
         }
 
         private void ProcessHost_PropertyChanged(object? sender, PropertyChangedEventArgs e)
