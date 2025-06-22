@@ -56,7 +56,6 @@ namespace Services.Lifecycle.ServerProcess
                 m_processHost.ErrorReceived -= ProcessHost_ErrorReceived;
                 m_processHost.Exited -= ProcessHost_Exited;
                 m_processHost.PropertyChanged -= ProcessHost_PropertyChanged;
-                m_outputBuffer.OnCompleted();
 
                 PropertyChanged = null;
 
