@@ -8,7 +8,7 @@ namespace ProcessTestsBase
         protected const int c_waitForProcessExitInMs = 20_000;
         protected const int c_waitForProcessOutputInMs = 5_000;
         protected const int c_waitForProcessToStartInMs = 1_000;
-        protected static FileInfo s_dummyConsoleAppFileInfo = null!;
+        protected static FileInfo DummyConsoleAppFileInfo { get; private set; } = null!;
 
 
         [Before(HookType.TestSession)]
@@ -18,21 +18,21 @@ namespace ProcessTestsBase
 
             if (OperatingSystem.IsWindows())
             {
-                s_dummyConsoleAppFileInfo = new FileInfo($"{dummyConsoleAppName}.exe");
+                DummyConsoleAppFileInfo = new FileInfo($"{dummyConsoleAppName}.exe");
             }
             else if (OperatingSystem.IsLinux())
             {
-                s_dummyConsoleAppFileInfo = new FileInfo(dummyConsoleAppName);
+                DummyConsoleAppFileInfo = new FileInfo(dummyConsoleAppName);
             }
             else
             {
                 throw new PlatformNotSupportedException("Unknown OS for testing.");
             }
 
-            s_dummyConsoleAppFileInfo.Refresh();
-            if (!s_dummyConsoleAppFileInfo.Exists)
+            DummyConsoleAppFileInfo.Refresh();
+            if (!DummyConsoleAppFileInfo.Exists)
             {
-                throw new InvalidOperationException($"Dummy console app is missing by path '{s_dummyConsoleAppFileInfo.FullName}'");
+                throw new InvalidOperationException($"Dummy console app is missing by path '{DummyConsoleAppFileInfo.FullName}'");
             }
         }
     }

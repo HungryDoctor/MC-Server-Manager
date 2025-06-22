@@ -141,7 +141,7 @@ namespace LifecycleTests
             ILogger<ProcessHost> processHostLogger = NullLoggerFactory.Instance.CreateLogger<ProcessHost>();
             ILogger<ServerProcessHost> serverHostLogger = NullLoggerFactory.Instance.CreateLogger<ServerProcessHost>();
 
-            ProcessHost processHost = new ProcessHost(processHostLogger, s_dummyConsoleAppFileInfo, workDir, args);
+            ProcessHost processHost = new ProcessHost(processHostLogger, DummyConsoleAppFileInfo, workDir, args);
             return new ServerProcessHost(serverHostLogger, processHost);
         }
     }
