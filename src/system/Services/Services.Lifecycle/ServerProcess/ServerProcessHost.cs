@@ -50,12 +50,12 @@ namespace Services.Lifecycle.ServerProcess
 
             try
             {
+                await m_processHost.DisposeAsync().ConfigureAwait(false);
+
                 m_processHost.OutputReceived -= ProcessHost_OutputReceived;
                 m_processHost.ErrorReceived -= ProcessHost_ErrorReceived;
                 m_processHost.Exited -= ProcessHost_Exited;
                 m_processHost.PropertyChanged -= ProcessHost_PropertyChanged;
-
-                await m_processHost.DisposeAsync().ConfigureAwait(false);
                 m_outputBuffer.OnCompleted();
 
                 PropertyChanged = null;
