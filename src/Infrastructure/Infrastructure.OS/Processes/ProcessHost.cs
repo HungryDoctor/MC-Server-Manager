@@ -74,9 +74,9 @@ namespace Infrastructure.OS.Processes
 
             await SafeDisposeProcessAsync().ConfigureAwait(false);
 
-            Exited = null;
-            ErrorReceived = null;
             OutputReceived = null;
+            ErrorReceived = null;
+            Exited = null;
             PropertyChanged = null;
 
             GC.SuppressFinalize(this);
@@ -95,26 +95,15 @@ namespace Infrastructure.OS.Processes
                     return;
                 }
 
+                if (Status == ProcessStatus.Exited)
+                {
+                    DisposeProcess();
+                    return;
+                }
+
                 try
                 {
-                    if (m_process.HasExited)
-                    {
-                        m_process.Exited -= OnProcessExited;
-                        m_process.ErrorDataReceived -= OnErrorReceived;
-                        m_process.OutputDataReceived -= OnDataReceived;
-                        m_process.Dispose();
-                    }
-                    else
-                    {
-                        try
-                        {
-                            await StopAsync().ConfigureAwait(false);
-                        }
-                        catch (Exception ex)
-                        {
-                            m_logger.LogError(ex, "Error occurred on disposing process host");
-                        }
-                    }
+                    await StopAsync().ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -207,7 +196,7 @@ namespace Infrastructure.OS.Processes
                 }
             }
 
-            if (Status != ProcessStatus.Running || m_process == null)
+            if (Status != ProcessStatus.Running)
             {
                 m_logger.LogWarning(
                     "Can't stop the process '{ProcessPath}' with args {Args} inside working directory '{WorkingDirectory}' with pid {PID}",
@@ -216,12 +205,17 @@ namespace Infrastructure.OS.Processes
                     m_workingDir.FullName,
                     m_process?.Id);
 
+                if (m_process != null)
+                {
+                    DisposeProcess();
+                }
+
                 return;
             }
 
             try
             {
-                m_process.Kill(true);
+                m_process!.Kill(true);
 
                 using (CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(ct))
                 {
@@ -231,11 +225,7 @@ namespace Infrastructure.OS.Processes
             }
             finally
             {
-                m_process.Exited -= OnProcessExited;
-                m_process.ErrorDataReceived -= OnErrorReceived;
-                m_process.OutputDataReceived -= OnDataReceived;
-                m_process.Dispose();
-
+                DisposeProcess();
                 Status = ProcessStatus.Exited;
             }
         }
@@ -318,6 +308,19 @@ namespace Infrastructure.OS.Processes
         private void OnDataReceived(object sender, DataReceivedEventArgs e)
         {
             OutputReceived?.Invoke(this, new ProcessDataReceivedEventArgs(m_process?.Id, e.Data));
+        }
+
+        private void DisposeProcess()
+        {
+            if (m_process == null)
+            {
+                return;
+            }
+
+            m_process.OutputDataReceived -= OnDataReceived;
+            m_process.ErrorDataReceived -= OnErrorReceived;
+            m_process.Exited -= OnProcessExited;
+            m_process.Dispose();
         }
 
         private void ValidatePaths()

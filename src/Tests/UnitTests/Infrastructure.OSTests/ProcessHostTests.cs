@@ -100,7 +100,7 @@ namespace Infrastructure.OSTests
             ProcessExitedEventArgs processExitedEventArgs = null!;
 
             using (autoResetEvent = new AutoResetEvent(false))
-            await using (ProcessHost host = CreateProcessHost(s_dummyConsoleAppFileInfo, new DirectoryInfo("./"), "-explode"))
+            await using (ProcessHost host = CreateProcessHost(DummyConsoleAppFileInfo, new DirectoryInfo("./"), "-explode"))
             {
                 host.Exited += Host_Exited;
 
@@ -209,7 +209,7 @@ namespace Infrastructure.OSTests
 
             using (errorAutoResetEvent = new AutoResetEvent(false))
             using (dataAutoResetEvent = new AutoResetEvent(false))
-            await using (ProcessHost host = CreateProcessHost(s_dummyConsoleAppFileInfo, new DirectoryInfo("./"), "-explode"))
+            await using (ProcessHost host = CreateProcessHost(DummyConsoleAppFileInfo, new DirectoryInfo("./"), "-explode"))
             {
                 host.ErrorReceived += Host_ErrorReceived;
                 host.OutputReceived += Host_OutputReceived;
@@ -244,7 +244,7 @@ namespace Infrastructure.OSTests
             string command = null!;
 
             using (dataAutoResetEvent = new AutoResetEvent(false))
-            await using (ProcessHost host = CreateProcessHost(s_dummyConsoleAppFileInfo, new DirectoryInfo("./"), "SomeArgs"))
+            await using (ProcessHost host = CreateProcessHost(DummyConsoleAppFileInfo, new DirectoryInfo("./"), "SomeArgs"))
             {
                 host.OutputReceived += Host_OutputReceived;
 
@@ -295,7 +295,7 @@ namespace Infrastructure.OSTests
             AutoResetEvent autoResetEvent = null!;
 
             using (autoResetEvent = new AutoResetEvent(false))
-            await using (ProcessHost host = CreateProcessHost(s_dummyConsoleAppFileInfo, new DirectoryInfo("./"), null))
+            await using (ProcessHost host = CreateProcessHost(DummyConsoleAppFileInfo, new DirectoryInfo("./"), null))
             {
                 host.Exited += Host_Exited;
                 host.Start();
@@ -332,7 +332,7 @@ namespace Infrastructure.OSTests
         public async Task Start_InvalidWorkingDirectory_ThrowsDirectoryNotFoundException_Async()
         {
             DirectoryInfo dir = new DirectoryInfo("NotExistingFolder");
-            await using (ProcessHost host = CreateProcessHost(s_dummyConsoleAppFileInfo, dir, null))
+            await using (ProcessHost host = CreateProcessHost(DummyConsoleAppFileInfo, dir, null))
             {
                 Assert.Throws<DirectoryNotFoundException>(() => host.Start());
             }
@@ -380,7 +380,7 @@ namespace Infrastructure.OSTests
         private static ProcessHost CreateProcessHost()
         {
             DirectoryInfo directoryInfo = new DirectoryInfo("./");
-            return CreateProcessHost(s_dummyConsoleAppFileInfo, directoryInfo, null);
+            return CreateProcessHost(DummyConsoleAppFileInfo, directoryInfo, null);
         }
 
         private static ProcessHost CreateProcessHost(FileInfo executable, DirectoryInfo workingDir, string? args)

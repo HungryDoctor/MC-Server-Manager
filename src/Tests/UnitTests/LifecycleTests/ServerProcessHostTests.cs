@@ -72,7 +72,7 @@ namespace LifecycleTests
                 });
 
                 host.Start();
-                autoResetEvent.WaitOne(c_waitForProcessExitInMs);
+                autoResetEvent.WaitOne(c_waitForProcessOutputInMs);
 
                 await Assert.That(host.Status).IsEqualTo(ProcessStatus.Exited);
                 await reader.ConfigureAwait(false);
@@ -102,7 +102,7 @@ namespace LifecycleTests
                 });
 
                 host.Start();
-                await Task.Delay(c_waitForProcessToStartInMs).ConfigureAwait(false);
+                await Task.Delay(c_waitForProcessOutputInMs).ConfigureAwait(false);
                 await host.DisposeAsync().ConfigureAwait(false);
 
                 autoResetEvent.WaitOne(c_waitForProcessExitInMs);
@@ -120,7 +120,7 @@ namespace LifecycleTests
             {
                 host.Start();
 
-                await Task.Delay(c_waitForProcessToStartInMs).ConfigureAwait(false);
+                await Task.Delay(c_waitForProcessOutputInMs).ConfigureAwait(false);
                 await host.StopAsync().ConfigureAwait(false);
 
                 List<ConsoleOutput> outputList = new List<ConsoleOutput>();
@@ -141,7 +141,7 @@ namespace LifecycleTests
             ILogger<ProcessHost> processHostLogger = NullLoggerFactory.Instance.CreateLogger<ProcessHost>();
             ILogger<ServerProcessHost> serverHostLogger = NullLoggerFactory.Instance.CreateLogger<ServerProcessHost>();
 
-            ProcessHost processHost = new ProcessHost(processHostLogger, s_dummyConsoleAppFileInfo, workDir, args);
+            ProcessHost processHost = new ProcessHost(processHostLogger, DummyConsoleAppFileInfo, workDir, args);
             return new ServerProcessHost(serverHostLogger, processHost);
         }
     }
