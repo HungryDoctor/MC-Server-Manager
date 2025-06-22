@@ -72,7 +72,7 @@ namespace LifecycleTests
                 });
 
                 host.Start();
-                autoResetEvent.WaitOne(c_waitForProcessExitInMs);
+                autoResetEvent.WaitOne(c_waitForProcessOutputInMs);
 
                 await Assert.That(host.Status).IsEqualTo(ProcessStatus.Exited);
                 await reader.ConfigureAwait(false);
@@ -102,7 +102,7 @@ namespace LifecycleTests
                 });
 
                 host.Start();
-                await Task.Delay(c_waitForProcessToStartInMs).ConfigureAwait(false);
+                await Task.Delay(c_waitForProcessOutputInMs).ConfigureAwait(false);
                 await host.DisposeAsync().ConfigureAwait(false);
 
                 autoResetEvent.WaitOne(c_waitForProcessExitInMs);
@@ -120,7 +120,7 @@ namespace LifecycleTests
             {
                 host.Start();
 
-                await Task.Delay(c_waitForProcessToStartInMs * 2).ConfigureAwait(false);
+                await Task.Delay(c_waitForProcessOutputInMs).ConfigureAwait(false);
                 await host.StopAsync().ConfigureAwait(false);
 
                 List<ConsoleOutput> outputList = new List<ConsoleOutput>();
