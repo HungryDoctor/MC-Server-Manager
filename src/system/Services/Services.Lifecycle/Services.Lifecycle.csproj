@@ -6,10 +6,13 @@
 
   <ItemGroup>
     <PackageReference Include="RavenDB.Client" />
+    <PackageReference Include="System.Linq.Async" />
+    <PackageReference Include="System.Reactive" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Contracts\Contracts.Lifecycle\Contracts.Lifecycle.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Infrastructure.OS\Infrastructure.OS.csproj" />
   </ItemGroup>
 
 </Project>

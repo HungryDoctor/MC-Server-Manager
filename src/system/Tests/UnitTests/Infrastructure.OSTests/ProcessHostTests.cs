@@ -1,47 +1,17 @@
 ﻿using Infrastructure.OS.Processes;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using ProcessTestsBase;
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Infrastructure.OSTests
 {
-    public class ProcessHostTests
+    public class ProcessHostTests : DummyProcessTestBase
     {
-        private const int c_waitForProcessExitInMs = 20000;
-        private const int c_waitForProcessOutputInMs = 5000;
-        private const int c_waitForProcessToStartInMs = 1000;
-        private static FileInfo s_dummyConsoleAppFileInfo = null!;
-
-
-        [Before(HookType.Class)]
-        public static void InitializeTest()
-        {
-            const string dummyConsoleAppName = "./DummyConsoleApp";
-
-            if (OperatingSystem.IsWindows())
-            {
-                s_dummyConsoleAppFileInfo = new FileInfo($"{dummyConsoleAppName}.exe");
-            }
-            else if (OperatingSystem.IsLinux())
-            {
-                s_dummyConsoleAppFileInfo = new FileInfo(dummyConsoleAppName);
-            }
-            else
-            {
-                throw new PlatformNotSupportedException("Unknown OS for testing.");
-            }
-
-            s_dummyConsoleAppFileInfo.Refresh();
-            if (!s_dummyConsoleAppFileInfo.Exists)
-            {
-                throw new InvalidOperationException($"Dummy console app is missing by path '{s_dummyConsoleAppFileInfo.FullName}'");
-            }
-        }
-
-
         [Test]
         public async Task Status_NotStarted_After_Creation_Async()
         {
@@ -59,6 +29,37 @@ namespace Infrastructure.OSTests
                 host.Start();
 
                 await Assert.That(host.Status).IsEqualTo(ProcessStatus.Running);
+                await Assert.That(host.ProcessId).IsGreaterThan(0);
+            }
+        }
+
+        [Test]
+        public async Task PropertyChanged_After_StatusChange_Async()
+        {
+            bool statusChanged = false;
+            bool processIdChanged = false;
+
+            await using (ProcessHost host = CreateProcessHost())
+            {
+                host.PropertyChanged += Host_PropertyChanged;
+                host.Start();
+
+                await Assert.That(statusChanged).IsTrue();
+                await Assert.That(processIdChanged).IsTrue();
+            }
+
+
+            void Host_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+            {
+                if (e?.PropertyName == nameof(IProcessHost.Status))
+                {
+                    statusChanged = true;
+                }
+
+                if (e?.PropertyName == nameof(IProcessHost.ProcessId))
+                {
+                    processIdChanged = true;
+                }
             }
         }
 
@@ -99,7 +100,7 @@ namespace Infrastructure.OSTests
             ProcessExitedEventArgs processExitedEventArgs = null!;
 
             using (autoResetEvent = new AutoResetEvent(false))
-            await using (ProcessHost host = CreateProcessHost(s_dummyConsoleAppFileInfo, new DirectoryInfo("./"), "-explode"))
+            await using (ProcessHost host = CreateProcessHost(DummyConsoleAppFileInfo, new DirectoryInfo("./"), "-explode"))
             {
                 host.Exited += Host_Exited;
 
@@ -208,7 +209,7 @@ namespace Infrastructure.OSTests
 
             using (errorAutoResetEvent = new AutoResetEvent(false))
             using (dataAutoResetEvent = new AutoResetEvent(false))
-            await using (ProcessHost host = CreateProcessHost(s_dummyConsoleAppFileInfo, new DirectoryInfo("./"), "-explode"))
+            await using (ProcessHost host = CreateProcessHost(DummyConsoleAppFileInfo, new DirectoryInfo("./"), "-explode"))
             {
                 host.ErrorReceived += Host_ErrorReceived;
                 host.OutputReceived += Host_OutputReceived;
@@ -243,7 +244,7 @@ namespace Infrastructure.OSTests
             string command = null!;
 
             using (dataAutoResetEvent = new AutoResetEvent(false))
-            await using (ProcessHost host = CreateProcessHost(s_dummyConsoleAppFileInfo, new DirectoryInfo("./"), "SomeArgs"))
+            await using (ProcessHost host = CreateProcessHost(DummyConsoleAppFileInfo, new DirectoryInfo("./"), "SomeArgs"))
             {
                 host.OutputReceived += Host_OutputReceived;
 
@@ -294,7 +295,7 @@ namespace Infrastructure.OSTests
             AutoResetEvent autoResetEvent = null!;
 
             using (autoResetEvent = new AutoResetEvent(false))
-            await using (ProcessHost host = CreateProcessHost(s_dummyConsoleAppFileInfo, new DirectoryInfo("./"), null))
+            await using (ProcessHost host = CreateProcessHost(DummyConsoleAppFileInfo, new DirectoryInfo("./"), null))
             {
                 host.Exited += Host_Exited;
                 host.Start();
@@ -331,7 +332,7 @@ namespace Infrastructure.OSTests
         public async Task Start_InvalidWorkingDirectory_ThrowsDirectoryNotFoundException_Async()
         {
             DirectoryInfo dir = new DirectoryInfo("NotExistingFolder");
-            await using (ProcessHost host = CreateProcessHost(s_dummyConsoleAppFileInfo, dir, null))
+            await using (ProcessHost host = CreateProcessHost(DummyConsoleAppFileInfo, dir, null))
             {
                 Assert.Throws<DirectoryNotFoundException>(() => host.Start());
             }
@@ -365,10 +366,7 @@ namespace Infrastructure.OSTests
                 autoResetEvent.WaitOne(c_waitForProcessExitInMs);
 
                 await Assert.That(host.Status).IsEqualTo(ProcessStatus.Exited);
-                await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                {
-                    await host.SendCommandAsync("never gonna happen").ConfigureAwait(false);
-                });
+                await Assert.ThrowsAsync<InvalidOperationException>(async () => await host.SendCommandAsync("never gonna happen").ConfigureAwait(false));
             }
 
 
@@ -382,7 +380,7 @@ namespace Infrastructure.OSTests
         private static ProcessHost CreateProcessHost()
         {
             DirectoryInfo directoryInfo = new DirectoryInfo("./");
-            return CreateProcessHost(s_dummyConsoleAppFileInfo, directoryInfo, null);
+            return CreateProcessHost(DummyConsoleAppFileInfo, directoryInfo, null);
         }
 
         private static ProcessHost CreateProcessHost(FileInfo executable, DirectoryInfo workingDir, string? args)

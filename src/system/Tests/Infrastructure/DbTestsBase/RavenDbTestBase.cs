@@ -4,7 +4,7 @@ using Raven.Embedded;
 using System;
 using System.Threading.Tasks;
 
-namespace TestsBase
+namespace DbTestsBase
 {
     public abstract class RavenDbTestBase
     {

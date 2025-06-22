@@ -1,14 +1,16 @@
 ﻿using Infrastructure.OS.Processes.Utils;
 using Microsoft.Extensions.Logging;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Infrastructure.OS.Processes
 {
-    public class ProcessHost : IAsyncDisposable
+    public class ProcessHost : IProcessHost, INotifyPropertyChanged
     {
         private const int c_waitForExitDelayInMs = 1000;
         private const int c_waitForExitRetries = 5;
@@ -22,24 +24,41 @@ namespace Infrastructure.OS.Processes
         private Process? m_process;
         private bool m_disposed = false;
         private bool m_processDisposed = false;
+        private ProcessStatus m_statusField = ProcessStatus.NotStarted;
 
-        public ProcessStatus Status { get; private set; } = ProcessStatus.NotStarted;
+        public ProcessStatus Status
+        {
+            get => m_statusField;
+
+            private set
+            {
+                if (value != m_statusField)
+                {
+                    m_statusField = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
         public int ProcessId
         {
             get
             {
-                return m_process?.Id ?? throw new InvalidOperationException($"Process '{m_executable.FullName}' is not started");
+                return m_process?.Id ?? -1;
             }
         }
 
         public event EventHandler<ProcessExitedEventArgs>? Exited;
         public event EventHandler<ProcessDataReceivedEventArgs>? ErrorReceived;
         public event EventHandler<ProcessDataReceivedEventArgs>? OutputReceived;
-
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public ProcessHost(ILogger<ProcessHost> logger, FileInfo executable, DirectoryInfo workingDir, string? args)
         {
+            ArgumentNullException.ThrowIfNull(logger);
+            ArgumentNullException.ThrowIfNull(executable);
+            ArgumentNullException.ThrowIfNull(workingDir);
+
             m_logger = logger;
             m_executable = executable;
             m_workingDir = workingDir;
@@ -53,14 +72,14 @@ namespace Infrastructure.OS.Processes
                 return;
             }
 
-            GC.SuppressFinalize(this);
-
             await SafeDisposeProcessAsync().ConfigureAwait(false);
 
-            Exited = null;
-            ErrorReceived = null;
             OutputReceived = null;
+            ErrorReceived = null;
+            Exited = null;
+            PropertyChanged = null;
 
+            GC.SuppressFinalize(this);
             m_disposed = true;
 
 
@@ -76,26 +95,15 @@ namespace Infrastructure.OS.Processes
                     return;
                 }
 
+                if (Status == ProcessStatus.Exited)
+                {
+                    DisposeProcess();
+                    return;
+                }
+
                 try
                 {
-                    if (m_process.HasExited)
-                    {
-                        m_process.Exited -= OnProcessExited;
-                        m_process.ErrorDataReceived -= OnErrorReceived;
-                        m_process.OutputDataReceived -= OnDataReceived;
-                        m_process.Dispose();
-                    }
-                    else
-                    {
-                        try
-                        {
-                            await StopAsync().ConfigureAwait(false);
-                        }
-                        catch (Exception ex)
-                        {
-                            m_logger.LogError(ex, "Error occurred on disposing process host");
-                        }
-                    }
+                    await StopAsync().ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -155,6 +163,7 @@ namespace Infrastructure.OS.Processes
 
             process.BeginErrorReadLine();
             process.BeginOutputReadLine();
+            NotifyPropertyChanged(nameof(ProcessId));
 
             Status = ProcessStatus.Running;
             return process.Id;
@@ -187,7 +196,7 @@ namespace Infrastructure.OS.Processes
                 }
             }
 
-            if (Status != ProcessStatus.Running || m_process == null)
+            if (Status != ProcessStatus.Running)
             {
                 m_logger.LogWarning(
                     "Can't stop the process '{ProcessPath}' with args {Args} inside working directory '{WorkingDirectory}' with pid {PID}",
@@ -196,12 +205,17 @@ namespace Infrastructure.OS.Processes
                     m_workingDir.FullName,
                     m_process?.Id);
 
+                if (m_process != null)
+                {
+                    DisposeProcess();
+                }
+
                 return;
             }
 
             try
             {
-                m_process.Kill(true);
+                m_process!.Kill(true);
 
                 using (CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(ct))
                 {
@@ -211,16 +225,12 @@ namespace Infrastructure.OS.Processes
             }
             finally
             {
-                m_process.Exited -= OnProcessExited;
-                m_process.ErrorDataReceived -= OnErrorReceived;
-                m_process.OutputDataReceived -= OnDataReceived;
-                m_process.Dispose();
-
+                DisposeProcess();
                 Status = ProcessStatus.Exited;
             }
         }
 
-        public async Task SendCommandAsync(string command)
+        public async Task SendCommandAsync(string command, CancellationToken ct = default)
         {
             ObjectDisposedException.ThrowIf(m_disposed, this);
 
@@ -237,10 +247,15 @@ namespace Infrastructure.OS.Processes
                 throw new InvalidOperationException($"Process '{m_executable.FullName}' is not running");
             }
 
-            await m_process!.StandardInput.WriteLineAsync(command).ConfigureAwait(false);
-            await m_process!.StandardInput.FlushAsync().ConfigureAwait(false);
+            await m_process!.StandardInput.WriteLineAsync(command.AsMemory(), ct).ConfigureAwait(false);
+            await m_process!.StandardInput.FlushAsync(ct).ConfigureAwait(false);
         }
 
+
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         private void Process_Disposed(object? sender, EventArgs e)
         {
@@ -258,7 +273,9 @@ namespace Infrastructure.OS.Processes
 
             if (m_process is null)
             {
+                NotifyPropertyChanged(nameof(ProcessId));
                 Status = ProcessStatus.Exited;
+
                 return;
             }
 
@@ -266,6 +283,8 @@ namespace Infrastructure.OS.Processes
             {
                 m_logger.LogWarning("Didn't wait for process '{ProcessPath}' with pid {PID} to exit. Proceeding...", m_executable.FullName, m_process.Id);
             }
+
+            NotifyPropertyChanged(nameof(ProcessId));
             Status = ProcessStatus.Exited;
 
             int? exitCode = null;
@@ -289,6 +308,19 @@ namespace Infrastructure.OS.Processes
         private void OnDataReceived(object sender, DataReceivedEventArgs e)
         {
             OutputReceived?.Invoke(this, new ProcessDataReceivedEventArgs(m_process?.Id, e.Data));
+        }
+
+        private void DisposeProcess()
+        {
+            if (m_process == null)
+            {
+                return;
+            }
+
+            m_process.OutputDataReceived -= OnDataReceived;
+            m_process.ErrorDataReceived -= OnErrorReceived;
+            m_process.Exited -= OnProcessExited;
+            m_process.Dispose();
         }
 
         private void ValidatePaths()
