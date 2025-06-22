@@ -32,7 +32,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$SolutionPath = Join-Path $PSScriptRoot -ChildPath "..\src\solutions\AllProjects\AllProjects.slnx"
+$SolutionPath = Join-Path $PSScriptRoot -ChildPath "..\src\McServerManager.slnx"
 if (-not (Test-Path $SolutionPath)) {
     Write-Error "Solution file not found: $SolutionPath"
     exit 1
