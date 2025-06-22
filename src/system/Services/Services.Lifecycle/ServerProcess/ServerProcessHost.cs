@@ -51,7 +51,10 @@ namespace Services.Lifecycle.ServerProcess
                 m_processHost.PropertyChanged -= ProcessHost_PropertyChanged;
 
                 await m_processHost.DisposeAsync().ConfigureAwait(false);
+
+                m_outputBuffer.OnCompleted();
                 m_outputBuffer.Dispose();
+                PropertyChanged = null;
             }
             catch (Exception ex)
             {
@@ -65,21 +68,29 @@ namespace Services.Lifecycle.ServerProcess
 
         public int Start()
         {
+            ObjectDisposedException.ThrowIf(m_disposed, this);
+
             return m_processHost.Start();
         }
 
         public Task StopAsync(CancellationToken ct = default)
         {
+            ObjectDisposedException.ThrowIf(m_disposed, this);
+
             return m_processHost.StopAsync(ct);
         }
 
         public Task StopAsync(TimeSpan waitForExit, CancellationToken ct = default)
         {
+            ObjectDisposedException.ThrowIf(m_disposed, this);
+
             return m_processHost.StopAsync(waitForExit, ct);
         }
 
         public Task SendCommandAsync(string command, CancellationToken ct = default)
         {
+            ObjectDisposedException.ThrowIf(m_disposed, this);
+
             return m_processHost.SendCommandAsync(command, ct);
         }
 
@@ -122,8 +133,8 @@ namespace Services.Lifecycle.ServerProcess
         private void ProcessHost_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             string? propertyName = e.PropertyName;
-            if (propertyName == nameof(Status) ||
-                propertyName == nameof(ProcessId))
+            if (propertyName == nameof(IServerProcessHost.Status) ||
+                propertyName == nameof(IServerProcessHost.ProcessId))
             {
                 NotifyPropertyChanged(propertyName);
             }
