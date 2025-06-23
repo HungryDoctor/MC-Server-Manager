@@ -18,6 +18,9 @@ namespace Services.Lifecycle.ServerProcess
         private readonly ProcessHost m_processHost;
         private readonly ReplaySubject<ConsoleOutput> m_outputBuffer;
         private int m_activeReaders;
+        private int m_openedStreams;
+        private int m_stdOutClosed;
+        private int m_stdErrClosed;
         private bool m_disposed;
 
         public ProcessStatus Status => m_processHost.Status;
@@ -35,7 +38,6 @@ namespace Services.Lifecycle.ServerProcess
             m_processHost = processHost;
             m_processHost.OutputReceived += ProcessHost_OutputReceived;
             m_processHost.ErrorReceived += ProcessHost_ErrorReceived;
-            m_processHost.Exited += ProcessHost_Exited;
             m_processHost.PropertyChanged += ProcessHost_PropertyChanged;
 
             m_outputBuffer = new ReplaySubject<ConsoleOutput>();
@@ -54,7 +56,6 @@ namespace Services.Lifecycle.ServerProcess
 
                 m_processHost.OutputReceived -= ProcessHost_OutputReceived;
                 m_processHost.ErrorReceived -= ProcessHost_ErrorReceived;
-                m_processHost.Exited -= ProcessHost_Exited;
                 m_processHost.PropertyChanged -= ProcessHost_PropertyChanged;
 
                 PropertyChanged = null;
@@ -77,6 +78,10 @@ namespace Services.Lifecycle.ServerProcess
         public int Start()
         {
             ObjectDisposedException.ThrowIf(m_disposed, this);
+
+            m_openedStreams = 2;
+            m_stdOutClosed = 0;
+            m_stdErrClosed = 0;
 
             return m_processHost.Start();
         }
@@ -123,16 +128,6 @@ namespace Services.Lifecycle.ServerProcess
             }
         }
 
-        private void ProcessHost_Exited(object? sender, ProcessExitedEventArgs e)
-        {
-            if (m_disposed)
-            {
-                return;
-            }
-
-            m_outputBuffer.OnCompleted();
-        }
-
         private void ProcessHost_OutputReceived(object? sender, ProcessDataReceivedEventArgs e)
         {
             if (m_disposed)
@@ -142,6 +137,11 @@ namespace Services.Lifecycle.ServerProcess
 
             if (e.Data == null)
             {
+                if (Interlocked.Exchange(ref m_stdOutClosed, 1) == 0)
+                {
+                    CloseBufferIfNeeded();
+                }
+
                 return;
             }
 
@@ -157,6 +157,10 @@ namespace Services.Lifecycle.ServerProcess
 
             if (e.Data == null)
             {
+                if (Interlocked.Exchange(ref m_stdErrClosed, 1) == 0)
+                {
+                    CloseBufferIfNeeded();
+                }
                 return;
             }
 
@@ -176,6 +180,14 @@ namespace Services.Lifecycle.ServerProcess
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void CloseBufferIfNeeded()
+        {
+            if (Interlocked.Decrement(ref m_openedStreams) == 0)
+            {
+                m_outputBuffer.OnCompleted();
+            }
         }
     }
 }
